@@ -10,6 +10,7 @@ import {
   Cycle,
   ExpandArrows,
   Flag,
+  EyeOff,
   LockClosed,
   LockOpen,
   ListLines,
@@ -55,6 +56,12 @@ export function SimLockScreen({ v }: { v: Vals }) {
             style={css("display:inline-flex;align-items:center;gap:9px;height:48px;padding:0 20px;border-radius:12px;border:1px solid rgba(255,59,92,.4);background:rgba(255,59,92,.08);color:#FF6B82;font-family:'Saira Condensed';font-weight:700;letter-spacing:.1em;font-size:15px;cursor:pointer;")}
           >
             <LockClosed w={18} h={18} sw={2.2} />LOCK ALL
+          </button>
+          <button
+            onClick={v.onStandbyAll}
+            style={css("display:inline-flex;align-items:center;gap:9px;height:48px;padding:0 20px;border-radius:12px;border:1px solid rgba(167,139,250,.4);background:rgba(167,139,250,.09);color:#C4B5FD;font-family:'Saira Condensed';font-weight:700;letter-spacing:.1em;font-size:15px;cursor:pointer;")}
+          >
+            <EyeOff w={18} h={18} sw={2.2} />STANDBY ALL
           </button>
           <button
             onClick={v.onUnlockAll}
