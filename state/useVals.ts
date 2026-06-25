@@ -43,6 +43,7 @@ export function useVals() {
         actionable:
           p.status === "locked" ||
           p.status === "unlocked" ||
+          p.status === "standby" ||
           p.status === "ready",
         inrace: p.status === "inrace",
         offline: p.status === "offline",
@@ -56,6 +57,7 @@ export function useVals() {
         onBuildToggle: () => A_.toggleBuild(p.id),
         onLock: () => A_.lockPod(p.id),
         onUnlock: () => A_.unlockPod(p.id),
+        onStandby: () => A_.standbyPod(p.id),
         onSelect: () => A_.toggleSel(p.id),
         onExpand: () => A_.openExpand(p.id),
         onReset: () => A_.resetCar(p.id),
@@ -548,6 +550,7 @@ export function useVals() {
         if (e && e.stopPropagation) e.stopPropagation();
       },
       onLockAll: () => A_.lockAll(),
+      onStandbyAll: () => A_.standbyAll(),
       onUnlockAll: () => A_.openUnlock(),
       onConfirmUnlock: () => A_.confirmUnlock(),
       onConfirmPayment: () => A_.confirmPayment(),
