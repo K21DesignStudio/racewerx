@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     process.env.SIM_LOCK_AGENT_URL ?? "https://sim-lock-portal.vercel.app";
 
   const controller = new AbortController();
-  const timeout = Number(process.env.SIM_LOCK_TIMEOUT_MS ?? 2500);
+  const timeout = Number(process.env.SIM_LOCK_TIMEOUT_MS ?? 8000);
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
