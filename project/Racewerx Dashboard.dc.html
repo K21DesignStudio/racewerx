@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800&amp;family=Saira:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#07090D;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+button{font-family:inherit}
+@keyframes livePulse{0%{box-shadow:0 0 0 0 rgba(47,210,122,.5)}70%{box-shadow:0 0 0 7px rgba(47,210,122,0)}100%{box-shadow:0 0 0 0 rgba(47,210,122,0)}}
+@keyframes popIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes overlayIn{from{opacity:0}to{opacity:1}}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes ringPulse{0%{box-shadow:0 0 0 0 rgba(47,210,122,.45)}70%{box-shadow:0 0 0 18px rgba(47,210,122,0)}100%{box-shadow:0 0 0 0 rgba(47,210,122,0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes dashMove{to{stroke-dashoffset:-26}}
+@keyframes liveBlink{0%,100%{opacity:1}50%{opacity:.4}}
+@media (max-width:760px){
+  .rw-actionbar{flex:1 1 100%;flex-wrap:nowrap !important;gap:9px !important;}
+  .rw-actionbar .rw-lockgroup{flex:1 1 auto;gap:9px;min-width:0;}
+  .rw-actionbar .rw-lockgroup button{flex:1 1 0;min-width:0;height:52px !important;padding:0 12px !important;font-size:14px !important;}
+  .rw-actionbar .rw-clock{font-size:15px !important;min-width:0 !important;flex:none;}
+  .rw-actionbar .rw-receipt{height:52px !important;padding:0 18px !important;flex:none;}
+  .rw-actionbar .rw-avatar{width:52px !important;height:52px !important;flex:none;}
+}
+@media (max-width:520px){
+  .rw-actionbar .rw-receipt{padding:0 14px !important;}
+  .rw-actionbar .rw-receipt .rw-receipt-label{display:none !important;}
+}
+@media (max-width:360px){
+  .rw-actionbar{gap:7px !important;}
+  .rw-actionbar .rw-lockgroup{gap:7px;}
+  .rw-actionbar .rw-lockgroup button{padding:0 9px !important;}
+  .rw-actionbar .rw-clock{display:none !important;}
+}
+</style>
+</helmet>
+
+<div style="min-height:100vh;color:#F2F5F9;font-family:'Saira','Saira Condensed',system-ui,sans-serif;background:radial-gradient(1200px 620px at 10% -10%,rgba(43,166,255,.10),transparent 58%),radial-gradient(1000px 700px at 100% -4%,rgba(193,18,46,.13),transparent 54%),#07090D;">
+<div style="max-width:1340px;margin:0 auto;padding:clamp(16px,3vw,30px) clamp(16px,3vw,32px) 60px;">
+
+  <!-- ===== APP BAR ===== -->
+  <div style="display:flex;align-items:center;gap:18px;padding-bottom:24px;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:26px;flex-wrap:wrap;">
+    <div onClick="{{ onHome }}" title="Back to home dashboard" role="button" style="display:flex;align-items:center;gap:13px;cursor:pointer;border-radius:11px;transition:opacity .15s;" style-hover="opacity:.78;" data-comment-anchor="77dc6baa60-div">
+      <img src="assets/racewerx-logo.png" alt="Racewerx" style="height:50px;width:50px;border-radius:11px;display:block;object-fit:cover;" />
+      <div style="line-height:1;">
+        <div style="font-family: 'Saira Condensed'; font-weight: 800; font-size: 23.5px; letter-spacing: .32em">{{ centreName }}</div>
+        <div style="font-size:9px;font-weight:600;letter-spacing:.4em;color:#7A8497;margin-top:5px;">RACING&nbsp;SIMULATORS</div>
+      </div>
+    </div>
+    <div style="display:flex;flex:1;align-items:center;justify-content:space-between;gap:2px;padding:5px;background:#0E1219;border:1px solid rgba(255,255,255,.08);border-radius:13px;">
+      <button onClick="{{ onStatOnline }}" title="Pods online" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;background:none;border:0;padding:5px 13px;border-radius:9px;color:#F2F5F9;" style-hover="background:#11161f;">
+        <span style="display:flex;align-items:center;gap:5px;font-family:'Saira Condensed';font-weight:800;font-size:19px;line-height:1;"><span style="width:7px;height:7px;border-radius:50%;background:#2FD27A;animation:livePulse 1.6s infinite;"></span>{{ counts.online }}<span style="font-size:11px;color:#5A6475;margin-left:2px;">/&thinsp;{{ counts.total }}</span></span>
+        <span style="font-size:8.5px;font-weight:600;letter-spacing:.18em;color:#7A8497;">ONLINE</span>
+      </button>
+      <span style="width:1px;height:26px;background:rgba(255,255,255,.08);"></span>
+      <button onClick="{{ onStatInrace }}" title="Pods in race" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;background:none;border:0;padding:5px 13px;border-radius:9px;color:#2FD27A;" style-hover="background:#11161f;">
+        <span style="font-family:'Saira Condensed';font-weight:800;font-size:19px;line-height:1;">{{ counts.inrace }}</span>
+        <span style="font-size:8.5px;font-weight:600;letter-spacing:.18em;color:#7A8497;">IN RACE</span>
+      </button>
+      <span style="width:1px;height:26px;background:rgba(255,255,255,.08);"></span>
+      <button onClick="{{ onStatReady }}" title="Pods ready" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;background:none;border:0;padding:5px 13px;border-radius:9px;color:#FFB020;" style-hover="background:#11161f;">
+        <span style="font-family:'Saira Condensed';font-weight:800;font-size:19px;line-height:1;">{{ counts.ready }}</span>
+        <span style="font-size:8.5px;font-weight:600;letter-spacing:.18em;color:#7A8497;">READY</span>
+      </button>
+      <span style="width:1px;height:26px;background:rgba(255,255,255,.08);"></span>
+      <button onClick="{{ onStatLocked }}" title="Pods locked" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;background:none;border:0;padding:5px 13px;border-radius:9px;color:#FF3B5C;" style-hover="background:#11161f;">
+        <span style="font-family:'Saira Condensed';font-weight:800;font-size:19px;line-height:1;">{{ counts.locked }}</span>
+        <span style="font-size:8.5px;font-weight:600;letter-spacing:.18em;color:#7A8497;">LOCKED</span>
+      </button>
+    </div>
+    <div class="rw-actionbar" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;" data-comment-anchor="208f2c4d98-div">
+      <div class="rw-lockgroup" style="display:flex;align-items:center;gap:10px;">
+        <button onClick="{{ onLockAll }}" style="display:inline-flex;align-items:center;gap:8px;height:56px;padding:0 20px;border-radius:12px;border:1px solid rgba(255,59,92,.5);background:rgba(255,59,92,.1);color:#FF6B82;font-family:'Saira Condensed';font-weight:800;letter-spacing:.08em;font-size:15px;cursor:pointer;" style-hover="background:rgba(255,59,92,.16);">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2"></rect><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"></path></svg><span class="rw-blabel">LOCK</span>
+        </button>
+        <button onClick="{{ onUnlockAll }}" style="display:inline-flex;align-items:center;gap:8px;height:56px;padding:0 22px;border-radius:12px;border:0;background:linear-gradient(135deg,#2BA6FF,#1E7FE0);color:#04101D;font-family:'Saira Condensed';font-weight:800;letter-spacing:.08em;font-size:15px;cursor:pointer;box-shadow:0 6px 18px rgba(43,166,255,.3);">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2"></rect><path d="M8 10.5V7a4 4 0 0 1 7.7-1.6"></path></svg><span class="rw-blabel">UNLOCK</span>
+        </button>
+      </div>
+      <div class="rw-clock" style="font-family:'Saira Condensed';font-weight:700;font-size:17px;letter-spacing:.06em;color:#C7D0DC;font-variant-numeric:tabular-nums;min-width:84px;text-align:right;">{{ clock }}</div>
+      <button onClick="{{ onPrintReceipt }}" class="rw-receipt" title="Print receipt" style="display:inline-flex;align-items:center;justify-content:center;gap:8px;height:56px;padding:0 17px;border-radius:12px;background:#0E1219;border:1px solid rgba(255,255,255,.1);color:#9FB0C4;cursor:pointer;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;" style-hover="border-color:rgba(43,166,255,.45);color:#5BC0FF;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8" rx="1"></rect></svg><span class="rw-receipt-label">RECEIPT</span>
+      </button>
+      <div class="rw-avatar" style="width:56px;height:56px;border-radius:12px;background:linear-gradient(160deg,#1A2230,#11151C);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-family:'Saira Condensed';font-weight:700;font-size:14px;color:#9FB0C4;">ST</div>
+    </div>
+  </div>
+
+  <!-- ===== HOME ===== -->
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+  <div style="animation:popIn .4s ease both;" data-comment-anchor="75d613abf1-div">
+
+    <sc-if value="{{ isListView }}" hint-placeholder-val="{{ true }}">
+    <div data-pod-section="" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(262px,1fr));gap:16px;">
+      <sc-for list="{{ pods }}" as="p" hint-placeholder-count="8">
+        <div style="background:#141A24;border:1px solid rgba(255,255,255,.07);border-radius:15px;overflow:hidden;" data-comment-anchor="c76c893691-div">
+          <div style="height:4px;background:{{ p.color }};"></div>
+          <div style="padding:18px;display:flex;flex-direction:column;gap:15px;">
+            <button onClick="{{ p.onDetail }}" title="Open PC details" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;cursor:pointer;background:none;border:0;padding:0;text-align:left;color:#F2F5F9;width:100%;">
+              <div>
+                <div style="font-size:11px;font-weight:600;letter-spacing:.26em;color:#6B7689;">SIM POD</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:3px;">
+                  <span style="font-family:'Saira Condensed';font-weight:800;font-size:36px;line-height:1;">{{ p.num }}</span>
+                  <span style="display:inline-flex;color:#5A6475;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg></span>
+                </div>
+              </div>
+              <span style="display:inline-flex;align-items:center;gap:8px;padding:7px 13px;border-radius:999px;background:{{ p.soft }};">
+                <sc-if value="{{ p.live }}" hint-placeholder-val="{{ false }}"><span style="width:8px;height:8px;border-radius:50%;background:{{ p.color }};animation:livePulse 1.4s infinite;"></span></sc-if>
+                <sc-if value="{{ p.notLive }}" hint-placeholder-val="{{ true }}"><span style="width:8px;height:8px;border-radius:50%;background:{{ p.color }};"></span></sc-if>
+                <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.12em;font-size:13px;color:{{ p.color }};">{{ p.label }}</span>
+              </span>
+            </button>
+            <div style="font-size:13px;color:#8A95A6;border-top:1px solid rgba(255,255,255,.06);padding-top:13px;">{{ p.desc }}</div>
+            <sc-if value="{{ p.actionable }}" hint-placeholder-val="{{ true }}">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <button onClick="{{ p.onLock }}" style="height:50px;border-radius:11px;border:1px solid rgba(255,59,92,.35);background:rgba(255,59,92,.07);color:#FF6B82;font-family:'Saira Condensed';font-weight:700;letter-spacing:.07em;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2"></rect><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"></path></svg>LOCK
+                </button>
+                <button onClick="{{ p.onUnlock }}" style="height:50px;border-radius:11px;border:1px solid rgba(43,166,255,.4);background:rgba(43,166,255,.1);color:#5BC0FF;font-family:'Saira Condensed';font-weight:700;letter-spacing:.07em;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2"></rect><path d="M8 10.5V7a4 4 0 0 1 7.7-1.6"></path></svg>UNLOCK
+                </button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ p.canBuild }}" hint-placeholder-val="{{ false }}">
+              <sc-if value="{{ p.notInBuild }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ p.onBuildToggle }}" title="Add this pod to a new race" style="height:46px;border-radius:11px;border:1px dashed rgba(47,210,122,.55);background:rgba(47,210,122,.05);color:#2FD27A;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;" style-hover="background:rgba(47,210,122,.12);border-color:rgba(47,210,122,.85);">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>ADD TO RACE
+                </button>
+              </sc-if>
+              <sc-if value="{{ p.inBuild }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ p.onBuildToggle }}" title="Remove from race build" style="height:46px;border-radius:11px;border:1px solid rgba(47,210,122,.7);background:rgba(47,210,122,.16);color:#2FD27A;font-family:'Saira Condensed';font-weight:800;letter-spacing:.07em;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;" style-hover="background:rgba(47,210,122,.24);" data-comment-anchor="4a37902087-button">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"></path></svg>IN RACE BUILD&nbsp;·&nbsp;<span style="font-weight:700;color:#9FE6BE;">REMOVE</span>
+                </button>
+              </sc-if>
+            </sc-if>
+            <sc-if value="{{ p.inrace }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <button onClick="{{ p.onExpand }}" title="Open live sim view" style="position:relative;display:block;width:100%;aspect-ratio:16/9;border-radius:11px;overflow:hidden;border:1px solid rgba(255,255,255,.12);cursor:pointer;padding:0;background:#0a0e14;">
+                  <div style="position:absolute;inset:0;background:linear-gradient(#13203a 0%,#2d3f63 32%,#6a5b54 42%,#143a20 42%,#0a1f12 100%);"></div>
+                  <svg viewBox="0 0 160 90" width="100%" height="100%" preserveAspectRatio="none" style="position:absolute;inset:0;">
+                    <polygon points="66,40 94,40 150,90 10,90" fill="#17191e"></polygon>
+                    <line x1="66" y1="40" x2="10" y2="90" stroke="#c62828" stroke-width="3.5"></line>
+                    <line x1="66" y1="40" x2="10" y2="90" stroke="#f5f5f5" stroke-width="3.5" stroke-dasharray="6 6"></line>
+                    <line x1="94" y1="40" x2="150" y2="90" stroke="#c62828" stroke-width="3.5"></line>
+                    <line x1="94" y1="40" x2="150" y2="90" stroke="#f5f5f5" stroke-width="3.5" stroke-dasharray="6 6"></line>
+                    <line x1="80" y1="42" x2="80" y2="90" stroke="#efeae0" stroke-width="2.4" stroke-dasharray="5 8" style="animation:dashMove .45s linear infinite;"></line>
+                  </svg>
+                  <span style="position:absolute;top:9px;left:9px;font-family:'Saira Condensed';font-weight:800;font-size:13px;color:#fff;background:rgba(8,12,18,.6);border-radius:5px;padding:3px 8px;">POD {{ p.num }}</span>
+                  <span style="position:absolute;top:9px;right:9px;display:inline-flex;align-items:center;gap:5px;background:rgba(225,18,51,.9);border-radius:5px;padding:3px 7px;font-family:'Saira Condensed';font-weight:800;letter-spacing:.12em;font-size:10px;color:#fff;animation:liveBlink 1.4s infinite;"><span style="width:6px;height:6px;border-radius:50%;background:#fff;"></span>LIVE</span>
+                  <span style="position:absolute;bottom:9px;left:9px;font-family:'Saira Condensed';font-weight:600;letter-spacing:.04em;font-size:10px;color:#C7D0DC;">{{ p.track }}</span>
+                  <span style="position:absolute;bottom:8px;right:9px;display:inline-flex;align-items:center;gap:5px;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:10px;color:#9FD4FF;">EXPAND<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"></path><path d="M16 3h3a2 2 0 0 1 2 2v3"></path><path d="M21 16v3a2 2 0 0 1-2 2h-3"></path><path d="M3 16v3a2 2 0 0 0 2 2h3"></path></svg></span>
+                </button>
+                <div style="display:flex;align-items:center;justify-content:center;gap:9px;height:38px;border-radius:10px;background:rgba(47,210,122,.08);border:1px solid rgba(47,210,122,.25);color:#2FD27A;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;"><span style="width:8px;height:8px;border-radius:50%;background:#2FD27A;animation:livePulse 1.4s infinite;"></span>RACE IN PROGRESS</div>
+                <button onClick="{{ p.onReset }}" style="height:46px;border-radius:11px;border:1px solid rgba(255,176,32,.4);background:rgba(255,176,32,.09);color:#FFB020;font-family:'Saira Condensed';font-weight:700;letter-spacing:.06em;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>RESET CAR
+                </button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ p.offline }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;justify-content:center;gap:9px;height:50px;border-radius:11px;background:rgba(107,118,137,.08);border:1px solid rgba(107,118,137,.22);color:#8A95A6;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:14px;">POD OFFLINE</div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    </sc-if>
+    <sc-if value="{{ isMapView }}" hint-placeholder-val="{{ false }}">
+    <div style="display:grid;grid-template-columns:1fr minmax(200px,1.2fr) 1fr;gap:14px;align-items:stretch;background:#0B0F15;border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:16px;">
+      <div style="display:flex;flex-direction:column;gap:11px;">
+        <div style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.2em;font-size:11px;color:#6B7689;text-align:center;">LEFT BAY</div>
+        <sc-for list="{{ leftPods }}" as="p" hint-placeholder-count="3">
+          <button onClick="{{ p.onExpand }}" title="Open pod view" style="display:flex;flex-direction:column;gap:8px;text-align:left;cursor:pointer;background:#141A24;border:1px solid rgba(255,255,255,.08);border-left:3px solid {{ p.color }};border-radius:12px;padding:10px;color:#F2F5F9;" style-hover="border-color:rgba(255,255,255,.2);background:#171f2b;">
+            <sc-if value="{{ p.inrace }}" hint-placeholder-val="{{ false }}">
+              <span style="position:relative;display:block;width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,.1);">
+                <span style="position:absolute;inset:0;background:linear-gradient(#13203a 0%,#2d3f63 32%,#6a5b54 42%,#143a20 42%,#0a1f12 100%);"></span>
+                <svg viewBox="0 0 160 90" width="100%" height="100%" preserveAspectRatio="none" style="position:absolute;inset:0;">
+                  <polygon points="66,40 94,40 150,90 10,90" fill="#17191e"></polygon>
+                  <line x1="66" y1="40" x2="10" y2="90" stroke="#c62828" stroke-width="3.5"></line>
+                  <line x1="66" y1="40" x2="10" y2="90" stroke="#f5f5f5" stroke-width="3.5" stroke-dasharray="6 6"></line>
+                  <line x1="94" y1="40" x2="150" y2="90" stroke="#c62828" stroke-width="3.5"></line>
+                  <line x1="94" y1="40" x2="150" y2="90" stroke="#f5f5f5" stroke-width="3.5" stroke-dasharray="6 6"></line>
+                  <line x1="80" y1="42" x2="80" y2="90" stroke="#efeae0" stroke-width="2.4" stroke-dasharray="5 8" style="animation:dashMove .45s linear infinite;"></line>
+                </svg>
+                <span style="position:absolute;top:6px;right:6px;display:inline-flex;align-items:center;gap:4px;background:rgba(225,18,51,.9);border-radius:4px;padding:2px 5px;font-family:'Saira Condensed';font-weight:800;letter-spacing:.1em;font-size:8px;color:#fff;animation:liveBlink 1.4s infinite;"><span style="width:5px;height:5px;border-radius:50%;background:#fff;"></span>LIVE</span>
+                <span style="position:absolute;bottom:5px;left:7px;font-family:'Saira Condensed';font-weight:600;font-size:9px;color:#C7D0DC;">{{ p.track }}</span>
+              </span>
+            </sc-if>
+            <span style="display:flex;align-items:center;gap:9px;">
+              <span style="font-family:'Saira Condensed';font-weight:800;font-size:21px;line-height:1;min-width:26px;">{{ p.num }}</span>
+              <span style="display:flex;align-items:center;gap:6px;min-width:0;">
+                <span style="width:7px;height:7px;border-radius:50%;background:{{ p.color }};flex:none;"></span>
+                <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:12px;color:{{ p.color }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.label }}</span>
+              </span>
+            </span>
+          </button>
+        </sc-for>
+      </div>
+      <div style="border-radius:14px;background:radial-gradient(120% 100% at 50% 0%,#11161f,#090d13);border:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:22px 16px;min-height:240px;">
+        <div style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.26em;font-size:11px;color:#6B7689;">RACE FLOOR</div>
+        <svg width="140" height="118" viewBox="0 0 120 100" fill="none">
+          <ellipse cx="60" cy="50" rx="42" ry="34" stroke="#2BA6FF" stroke-width="2.5" opacity="0.5"></ellipse>
+          <ellipse cx="60" cy="50" rx="26" ry="18" stroke="#2BA6FF" stroke-width="1.5" opacity="0.25"></ellipse>
+          <rect x="57" y="14" width="6" height="6" fill="#e9edf3"></rect>
+        </svg>
+        <div style="display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:#0E1219;border:1px solid rgba(255,255,255,.08);">
+          <span style="width:8px;height:8px;border-radius:50%;background:#2FD27A;animation:livePulse 1.6s infinite;"></span>
+          <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:12px;color:#C7D0DC;">{{ counts.online }}/{{ counts.total }} PODS ONLINE</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:11px;">
+        <div style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.2em;font-size:11px;color:#6B7689;text-align:center;">RIGHT BAY</div>
+        <sc-for list="{{ rightPods }}" as="p" hint-placeholder-count="2">
+          <button onClick="{{ p.onExpand }}" title="Open pod view" style="display:flex;flex-direction:column;gap:8px;text-align:left;cursor:pointer;background:#141A24;border:1px solid rgba(255,255,255,.08);border-left:3px solid {{ p.color }};border-radius:12px;padding:10px;color:#F2F5F9;" style-hover="border-color:rgba(255,255,255,.2);background:#171f2b;">
+            <sc-if value="{{ p.inrace }}" hint-placeholder-val="{{ false }}">
+              <span style="position:relative;display:block;width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,.1);">
+                <span style="position:absolute;inset:0;background:linear-gradient(#13203a 0%,#2d3f63 32%,#6a5b54 42%,#143a20 42%,#0a1f12 100%);"></span>
+                <svg viewBox="0 0 160 90" width="100%" height="100%" preserveAspectRatio="none" style="position:absolute;inset:0;">
+                  <polygon points="66,40 94,40 150,90 10,90" fill="#17191e"></polygon>
+                  <line x1="66" y1="40" x2="10" y2="90" stroke="#c62828" stroke-width="3.5"></line>
+                  <line x1="66" y1="40" x2="10" y2="90" stroke="#f5f5f5" stroke-width="3.5" stroke-dasharray="6 6"></line>
+                  <line x1="94" y1="40" x2="150" y2="90" stroke="#c62828" stroke-width="3.5"></line>
+                  <line x1="94" y1="40" x2="150" y2="90" stroke="#f5f5f5" stroke-width="3.5" stroke-dasharray="6 6"></line>
+                  <line x1="80" y1="42" x2="80" y2="90" stroke="#efeae0" stroke-width="2.4" stroke-dasharray="5 8" style="animation:dashMove .45s linear infinite;"></line>
+                </svg>
+                <span style="position:absolute;top:6px;right:6px;display:inline-flex;align-items:center;gap:4px;background:rgba(225,18,51,.9);border-radius:4px;padding:2px 5px;font-family:'Saira Condensed';font-weight:800;letter-spacing:.1em;font-size:8px;color:#fff;animation:liveBlink 1.4s infinite;"><span style="width:5px;height:5px;border-radius:50%;background:#fff;"></span>LIVE</span>
+                <span style="position:absolute;bottom:5px;left:7px;font-family:'Saira Condensed';font-weight:600;font-size:9px;color:#C7D0DC;">{{ p.track }}</span>
+              </span>
+            </sc-if>
+            <span style="display:flex;align-items:center;gap:9px;">
+              <span style="font-family:'Saira Condensed';font-weight:800;font-size:21px;line-height:1;min-width:26px;">{{ p.num }}</span>
+              <span style="display:flex;align-items:center;gap:6px;min-width:0;">
+                <span style="width:7px;height:7px;border-radius:50%;background:{{ p.color }};flex:none;"></span>
+                <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:12px;color:{{ p.color }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.label }}</span>
+              </span>
+            </span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ hasBuild }}" hint-placeholder-val="{{ false }}">
+    <div style="position:sticky;bottom:16px;z-index:45;display:flex;align-items:center;gap:12px;padding:12px 14px 12px 18px;border-radius:16px;background:#10151D;border:1px solid rgba(47,210,122,.5);box-shadow:0 16px 44px rgba(0,0,0,.6);animation:popIn .3s ease both;margin:10px 0 24px;" data-comment-anchor="56aa7ba580-div">
+      <span style="display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:38px;padding:0 10px;border-radius:10px;background:rgba(47,210,122,.16);color:#2FD27A;font-family:'Saira Condensed';font-weight:800;font-size:18px;flex:none;">{{ buildCount }}</span>
+      <span style="display:flex;flex-direction:column;min-width:0;">
+        <span style="font-family:'Saira Condensed';font-weight:800;letter-spacing:.04em;font-size:15px;color:#F2F5F9;line-height:1.1;white-space:nowrap;">Building a race</span>
+        <span style="font-size:11.5px;color:#8A95A6;white-space:nowrap;">{{ buildCount }} of {{ buildUnlockedTotal }} unlocked pods added · tap CREATE RACE when ready</span>
+      </span>
+      <span style="flex:1;"></span>
+      <button onClick="{{ onBuildClear }}" title="Clear race build" style="height:44px;padding:0 16px;border-radius:11px;border:1px solid rgba(255,255,255,.14);background:#141A24;color:#C7D0DC;font-family:'Saira Condensed';font-weight:700;letter-spacing:.06em;font-size:13px;cursor:pointer;flex:none;" style-hover="border-color:rgba(255,59,92,.45);color:#FF6B82;">CLEAR</button>
+      <button onClick="{{ onBuildCreate }}" title="Continue to race setup" style="height:44px;padding:0 20px;border-radius:11px;border:0;background:linear-gradient(135deg,#2FD27A,#16A85B);color:#04140B;font-family:'Saira Condensed';font-weight:800;letter-spacing:.06em;font-size:14px;cursor:pointer;flex:none;display:inline-flex;align-items:center;gap:8px;box-shadow:0 8px 22px rgba(47,210,122,.3);">CREATE RACE<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></button>
+    </div>
+    </sc-if>
+
+    <!-- ===== RACE SETUP (inline) ===== -->
+    <div style="display:flex;align-items:center;gap:13px;margin:34px 0 18px;font-family:'Saira Condensed';font-weight:700;letter-spacing:.14em;font-size:14px;color:#C7D0DC;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#2BA6FF;flex:none;"></span><span style="flex:none;">LIVE POD STATUS</span>
+      <span style="flex:1;height:2px;border-radius:2px;background:#2BA6FF;"></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:11px;margin-bottom:14px;">
+      <span style="display:inline-flex;width:34px;height:34px;border-radius:10px;align-items:center;justify-content:center;background:rgba(225,18,51,.14);color:#FF6B82;flex:none;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"></path><path d="M5 5h12l-2.2 3.6L17 12H5"></path></svg></span>
+      <div style="flex:1;">
+        <div style="font-family:'Saira Condensed';font-weight:800;font-size:20px;letter-spacing:.04em;line-height:1;">RACE SETUP</div>
+        <div style="color:#8A95A6;font-size:13px;margin-top:3px;">Pick a session package to start building a race</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(228px,1fr));gap:14px;margin-bottom:30px;" data-comment-anchor="8611b7cd12-div">
+      <button onClick="{{ selX3 }}" style="text-align:left;cursor:pointer;border:1px solid rgba(43,166,255,.22);border-radius:16px;overflow:hidden;background:#0E1219;color:#F2F5F9;display:flex;flex-direction:column;" style-hover="border-color:rgba(43,166,255,.5);">
+        <div style="height:4px;background:linear-gradient(90deg,#2BA6FF,#1E7FE0);"></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:11px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;font-size:11px;color:#5BC0FF;background:rgba(43,166,255,.12);padding:4px 9px;border-radius:6px;">SPRINT</span>
+            <span style="font-family:'Saira Condensed';font-weight:600;letter-spacing:.1em;font-size:11px;color:#8A95A6;">3 RACES</span>
+          </div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;line-height:1.05;">x3 Race Session</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:19px;" data-comment-anchor="c3286388b1-span">£15<span style="font-size:12px;color:#8A95A6;font-weight:600;"> / driver</span></span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:#2BA6FF;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;">SELECT<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+          </div>
+        </div>
+      </button>
+      <button onClick="{{ selX5 }}" style="text-align:left;cursor:pointer;border:1px solid rgba(43,166,255,.22);border-radius:16px;overflow:hidden;background:#0E1219;color:#F2F5F9;display:flex;flex-direction:column;" style-hover="border-color:rgba(43,166,255,.5);">
+        <div style="height:4px;background:linear-gradient(90deg,#5BC0FF,#2BA6FF);"></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:11px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;font-size:11px;color:#5BC0FF;background:rgba(43,166,255,.12);padding:4px 9px;border-radius:6px;">GRAND PRIX</span>
+            <span style="font-family:'Saira Condensed';font-weight:600;letter-spacing:.1em;font-size:11px;color:#8A95A6;">4 RACES</span>
+          </div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;line-height:1.05;" data-comment-anchor="d3823fdf56-div">x4 Race Session</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:19px;">£20<span style="font-size:12px;color:#8A95A6;font-weight:600;"> / driver</span></span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:#2BA6FF;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;">SELECT<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+          </div>
+        </div>
+      </button>
+      <button onClick="{{ selMin30 }}" style="text-align:left;cursor:pointer;border:1px solid rgba(43,166,255,.22);border-radius:16px;overflow:hidden;background:#0E1219;color:#F2F5F9;display:flex;flex-direction:column;" style-hover="border-color:rgba(43,166,255,.5);">
+        <div style="height:4px;background:linear-gradient(90deg,#37C8C3,#1E9E9A);"></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:11px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;font-size:11px;color:#5FD6D1;background:rgba(55,200,195,.13);padding:4px 9px;border-radius:6px;">OPEN SESSION</span>
+            <span style="font-family:'Saira Condensed';font-weight:600;letter-spacing:.1em;font-size:11px;color:#8A95A6;">30 MIN</span>
+          </div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;line-height:1.05;">30 Minute Package</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:19px;">£25<span style="font-size:12px;color:#8A95A6;font-weight:600;"> / driver</span></span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:#37C8C3;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;">SELECT<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+          </div>
+        </div>
+      </button><button onClick="{{ selMin60 }}" style="text-align:left;cursor:pointer;border:1px solid rgba(43,166,255,.22);border-radius:16px;overflow:hidden;background:#0E1219;color:#F2F5F9;display:flex;flex-direction:column;" style-hover="border-color:rgba(43,166,255,.5);">
+        <div style="height:4px;background:linear-gradient(90deg,#5B8DEF,#3563D6);"></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:11px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;font-size:11px;color:#8FB0F5;background:rgba(91,141,239,.14);padding:4px 9px;border-radius:6px;">OPEN SESSION</span>
+            <span style="font-family:'Saira Condensed';font-weight:600;letter-spacing:.1em;font-size:11px;color:#8A95A6;">60 MIN</span>
+          </div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;line-height:1.05;">60 Minute Package</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:19px;">£45<span style="font-size:12px;color:#8A95A6;font-weight:600;"> / driver</span></span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:#5B8DEF;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;">SELECT<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+          </div>
+        </div>
+      </button><button onClick="{{ selCustom }}" style="text-align:left;cursor:pointer;border:1.5px dashed rgba(43,166,255,.45);border-radius:16px;overflow:hidden;background:linear-gradient(160deg,rgba(43,166,255,.07),rgba(43,166,255,0) 60%),#0B0F15;color:#F2F5F9;display:flex;flex-direction:column;" style-hover="border-color:rgba(43,166,255,.85);background:linear-gradient(160deg,rgba(43,166,255,.12),rgba(43,166,255,0) 60%),#0B0F15;">
+        <div style="height:4px;background:repeating-linear-gradient(90deg,#2BA6FF 0 8px,transparent 8px 14px);"></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:11px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;font-size:11px;color:#5BC0FF;background:rgba(43,166,255,.12);padding:4px 9px;border-radius:6px;">CUSTOM</span>
+            <span style="font-family:'Saira Condensed';font-weight:600;letter-spacing:.1em;font-size:11px;color:#8A95A6;">BUILD</span>
+          </div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;line-height:1.05;">Custom Combo</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+            <span style="display:inline-flex;align-items:center;gap:7px;font-family:'Saira Condensed';font-weight:800;font-size:15px;letter-spacing:.02em;color:#5BC0FF;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Pick races</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:#2BA6FF;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;">BUILD<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+          </div>
+        </div>
+      </button><button onClick="{{ selBronze }}" style="text-align:left;cursor:pointer;border:1px solid rgba(199,123,60,.3);border-radius:16px;overflow:hidden;background:#0E1219;color:#F2F5F9;display:flex;flex-direction:column;" style-hover="border-color:rgba(199,123,60,.55);">
+        <div style="height:4px;background:linear-gradient(90deg,#E0A063,#B5702F);"></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:11px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;font-size:11px;color:#D49460;background:rgba(199,123,60,.14);padding:4px 9px;border-radius:6px;">BRONZE · OPEN</span>
+            <span style="font-family:'Saira Condensed';font-weight:600;letter-spacing:.1em;font-size:11px;color:#8A95A6;">15 MIN</span>
+          </div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;line-height:1.05;">Open Bronze Package</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:19px;">£60<span style="font-size:12px;color:#8A95A6;font-weight:600;"> / EB</span></span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:#D49460;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;">SELECT<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+          </div>
+        </div>
+      </button><button onClick="{{ selSilver }}" style="text-align:left;cursor:pointer;border:1px solid rgba(199,212,228,.24);border-radius:16px;overflow:hidden;background:#0E1219;color:#F2F5F9;display:flex;flex-direction:column;" style-hover="border-color:rgba(199,212,228,.5);">
+        <div style="height:4px;background:linear-gradient(90deg,#D7DEE8,#9FB0C4);"></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:11px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;font-size:11px;color:#C7D0DC;background:rgba(199,212,228,.12);padding:4px 9px;border-radius:6px;">SILVER · OPEN</span>
+            <span style="font-family:'Saira Condensed';font-weight:600;letter-spacing:.1em;font-size:11px;color:#8A95A6;">20 MIN</span>
+          </div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;line-height:1.05;">Open Silver Package</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:19px;">£100<span style="font-size:12px;color:#8A95A6;font-weight:600;"> / EB</span></span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:#C7D0DC;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;">SELECT<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+          </div>
+        </div>
+      </button><button onClick="{{ selGold }}" style="text-align:left;cursor:pointer;border:1px solid rgba(255,176,32,.3);border-radius:16px;overflow:hidden;background:#0E1219;color:#F2F5F9;display:flex;flex-direction:column;" style-hover="border-color:rgba(255,176,32,.55);">
+        <div style="height:4px;background:linear-gradient(90deg,#FFCD5C,#E0961A);"></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:11px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;font-size:11px;color:#FFC555;background:rgba(255,176,32,.13);padding:4px 9px;border-radius:6px;">GOLD · OPEN</span>
+            <span style="font-family:'Saira Condensed';font-weight:600;letter-spacing:.1em;font-size:11px;color:#8A95A6;">30 MIN</span>
+          </div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;line-height:1.05;">Open Gold Package</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:19px;">£100<span style="font-size:12px;color:#8A95A6;font-weight:600;"> / EB</span></span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:#FFB020;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;">SELECT<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+          </div>
+        </div>
+      </button>
+      <button onClick="{{ selPlat }}" style="text-align:left;cursor:pointer;border:1px solid rgba(199,212,228,.28);border-radius:16px;overflow:hidden;background:linear-gradient(160deg,rgba(199,212,228,.07),rgba(199,212,228,0) 60%),#0E1219;color:#F2F5F9;display:flex;flex-direction:column;" style-hover="border-color:rgba(199,212,228,.55);">
+        <div style="height:4px;background:linear-gradient(90deg,#FF4FA3,#E11473);" data-comment-anchor="c0efe1aec7-div"></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:11px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;font-size:11px;color:#E7EDF5;background:rgba(199,212,228,.14);padding:4px 9px;border-radius:6px;">PLATINUM · PRO</span>
+            <span style="font-family:'Saira Condensed';font-weight:600;letter-spacing:.1em;font-size:11px;color:#8A95A6;">60 MIN</span>
+          </div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;line-height:1.05;">Open Platinum Package</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:19px;">£200<span style="font-size:12px;color:#8A95A6;font-weight:600;"> / EB</span></span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:#E7EDF5;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;">SELECT<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+          </div>
+        </div>
+      </button><button onClick="{{ selVoucher }}" style="text-align:left;cursor:pointer;border:1px solid rgba(159,122,234,.32);border-radius:16px;overflow:hidden;background:linear-gradient(160deg,rgba(159,122,234,.08),rgba(159,122,234,0) 60%),#0E1219;color:#F2F5F9;display:flex;flex-direction:column;" style-hover="border-color:rgba(159,122,234,.6);">
+        <div style="height:4px;background:linear-gradient(90deg,#1E7D4F,#0C5132);" data-comment-anchor="149ca2c78b-div"></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:11px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;font-size:11px;color:#C4AEF5;background:rgba(159,122,234,.14);padding:4px 9px;border-radius:6px;">VOUCHER</span>
+            <span style="font-family:'Saira Condensed';font-weight:600;letter-spacing:.1em;font-size:11px;color:#8A95A6;">REDEEM</span>
+          </div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;line-height:1.05;">Voucher Booking</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+            <span style="display:inline-flex;align-items:center;gap:7px;font-family:'Saira Condensed';font-weight:800;font-size:15px;letter-spacing:.02em;color:#C4AEF5;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v2a2 2 0 0 0 0 4v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a2 2 0 0 0 0-4Z"></path><path d="M12 8v8" stroke-dasharray="2 2"></path></svg>Enter code</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:#9F7AEA;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;">SELECT<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+          </div>
+        </div>
+      </button>
+      
+      
+      
+      
+      
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===== SIM LOCK ===== -->
+  <sc-if value="{{ isSimlock }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:popIn .4s ease both;">
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-bottom:24px;">
+      <button onClick="{{ onBack }}" style="display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:#141A24;color:#F2F5F9;cursor:pointer;flex:none;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>
+      </button>
+      <div style="flex:1;min-width:180px;">
+        <div style="font-family:'Saira Condensed';font-weight:800;font-size:clamp(26px,3.4vw,38px);line-height:1;">SIM LOCK MODE</div>
+        <div style="color:#8A95A6;font-size:14px;margin-top:5px;">{{ counts.online }} of {{ counts.total }} pods connected</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button onClick="{{ onLockAll }}" style="display:inline-flex;align-items:center;gap:9px;height:48px;padding:0 20px;border-radius:12px;border:1px solid rgba(255,59,92,.4);background:rgba(255,59,92,.08);color:#FF6B82;font-family:'Saira Condensed';font-weight:700;letter-spacing:.1em;font-size:15px;cursor:pointer;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2"></rect><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"></path></svg>LOCK ALL
+        </button>
+        <button onClick="{{ onUnlockAll }}" style="display:inline-flex;align-items:center;gap:9px;height:48px;padding:0 22px;border-radius:12px;border:0;background:linear-gradient(135deg,#2BA6FF,#1E7FE0);color:#04101D;font-family:'Saira Condensed';font-weight:800;letter-spacing:.08em;font-size:15px;cursor:pointer;box-shadow:0 6px 20px rgba(43,166,255,.3);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2"></rect><path d="M8 10.5V7a4 4 0 0 1 7.7-1.6"></path></svg>UNLOCK ALL
+        </button>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(262px,1fr));gap:16px;">
+      <sc-for list="{{ pods }}" as="p" hint-placeholder-count="8">
+        <div style="background:#141A24;border:1px solid rgba(255,255,255,.07);border-radius:15px;overflow:hidden;">
+          <div style="height:4px;background:{{ p.color }};"></div>
+          <div style="padding:18px;display:flex;flex-direction:column;gap:15px;">
+            <button onClick="{{ p.onDetail }}" title="Open PC details" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;cursor:pointer;background:none;border:0;padding:0;text-align:left;color:#F2F5F9;width:100%;">
+              <div>
+                <div style="font-size:11px;font-weight:600;letter-spacing:.26em;color:#6B7689;">SIM POD</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:3px;">
+                  <span style="font-family:'Saira Condensed';font-weight:800;font-size:36px;line-height:1;">{{ p.num }}</span>
+                  <span style="display:inline-flex;color:#5A6475;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg></span>
+                </div>
+              </div>
+              <span style="display:inline-flex;align-items:center;gap:8px;padding:7px 13px;border-radius:999px;background:{{ p.soft }};">
+                <sc-if value="{{ p.live }}" hint-placeholder-val="{{ false }}"><span style="width:8px;height:8px;border-radius:50%;background:{{ p.color }};animation:livePulse 1.4s infinite;"></span></sc-if>
+                <sc-if value="{{ p.notLive }}" hint-placeholder-val="{{ true }}"><span style="width:8px;height:8px;border-radius:50%;background:{{ p.color }};"></span></sc-if>
+                <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.12em;font-size:13px;color:{{ p.color }};">{{ p.label }}</span>
+              </span>
+            </button>
+            <div style="font-size:13px;color:#8A95A6;border-top:1px solid rgba(255,255,255,.06);padding-top:13px;">{{ p.desc }}</div>
+            <sc-if value="{{ p.actionable }}" hint-placeholder-val="{{ true }}">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <button onClick="{{ p.onLock }}" style="height:50px;border-radius:11px;border:1px solid rgba(255,59,92,.35);background:rgba(255,59,92,.07);color:#FF6B82;font-family:'Saira Condensed';font-weight:700;letter-spacing:.07em;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2"></rect><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"></path></svg>LOCK
+                </button>
+                <button onClick="{{ p.onUnlock }}" style="height:50px;border-radius:11px;border:1px solid rgba(43,166,255,.4);background:rgba(43,166,255,.1);color:#5BC0FF;font-family:'Saira Condensed';font-weight:700;letter-spacing:.07em;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2"></rect><path d="M8 10.5V7a4 4 0 0 1 7.7-1.6"></path></svg>UNLOCK
+                </button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ p.inrace }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <button onClick="{{ p.onExpand }}" title="Open live sim view" style="position:relative;display:block;width:100%;aspect-ratio:16/9;border-radius:11px;overflow:hidden;border:1px solid rgba(255,255,255,.12);cursor:pointer;padding:0;background:#0a0e14;">
+                  <div style="position:absolute;inset:0;background:linear-gradient(#13203a 0%,#2d3f63 32%,#6a5b54 42%,#143a20 42%,#0a1f12 100%);"></div>
+                  <svg viewBox="0 0 160 90" width="100%" height="100%" preserveAspectRatio="none" style="position:absolute;inset:0;">
+                    <polygon points="66,40 94,40 150,90 10,90" fill="#17191e"></polygon>
+                    <line x1="66" y1="40" x2="10" y2="90" stroke="#c62828" stroke-width="3.5"></line>
+                    <line x1="66" y1="40" x2="10" y2="90" stroke="#f5f5f5" stroke-width="3.5" stroke-dasharray="6 6"></line>
+                    <line x1="94" y1="40" x2="150" y2="90" stroke="#c62828" stroke-width="3.5"></line>
+                    <line x1="94" y1="40" x2="150" y2="90" stroke="#f5f5f5" stroke-width="3.5" stroke-dasharray="6 6"></line>
+                    <line x1="80" y1="42" x2="80" y2="90" stroke="#efeae0" stroke-width="2.4" stroke-dasharray="5 8" style="animation:dashMove .45s linear infinite;"></line>
+                  </svg>
+                  <span style="position:absolute;top:9px;left:9px;font-family:'Saira Condensed';font-weight:800;font-size:13px;color:#fff;background:rgba(8,12,18,.6);border-radius:5px;padding:3px 8px;">POD {{ p.num }}</span>
+                  <span style="position:absolute;top:9px;right:9px;display:inline-flex;align-items:center;gap:5px;background:rgba(225,18,51,.9);border-radius:5px;padding:3px 7px;font-family:'Saira Condensed';font-weight:800;letter-spacing:.12em;font-size:10px;color:#fff;animation:liveBlink 1.4s infinite;"><span style="width:6px;height:6px;border-radius:50%;background:#fff;"></span>LIVE</span>
+                  <span style="position:absolute;bottom:9px;left:9px;font-family:'Saira Condensed';font-weight:600;letter-spacing:.04em;font-size:10px;color:#C7D0DC;">{{ p.track }}</span>
+                  <span style="position:absolute;bottom:8px;right:9px;display:inline-flex;align-items:center;gap:5px;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:10px;color:#9FD4FF;">EXPAND<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"></path><path d="M16 3h3a2 2 0 0 1 2 2v3"></path><path d="M21 16v3a2 2 0 0 1-2 2h-3"></path><path d="M3 16v3a2 2 0 0 0 2 2h3"></path></svg></span>
+                </button>
+                <div style="display:flex;align-items:center;justify-content:center;gap:9px;height:38px;border-radius:10px;background:rgba(47,210,122,.08);border:1px solid rgba(47,210,122,.25);color:#2FD27A;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;"><span style="width:8px;height:8px;border-radius:50%;background:#2FD27A;animation:livePulse 1.4s infinite;"></span>RACE IN PROGRESS</div>
+                <button onClick="{{ p.onReset }}" style="height:46px;border-radius:11px;border:1px solid rgba(255,176,32,.4);background:rgba(255,176,32,.09);color:#FFB020;font-family:'Saira Condensed';font-weight:700;letter-spacing:.06em;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>RESET CAR
+                </button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ p.offline }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;justify-content:center;gap:9px;height:50px;border-radius:11px;background:rgba(107,118,137,.08);border:1px solid rgba(107,118,137,.22);color:#8A95A6;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:14px;">POD OFFLINE</div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===== RACE SETUP ===== -->
+  <sc-if value="{{ isRaceSetup }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:popIn .4s ease both;">
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-bottom:26px;">
+      <button onClick="{{ onBack }}" style="display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:#141A24;color:#F2F5F9;cursor:pointer;flex:none;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>
+      </button>
+      <div style="flex:1;min-width:180px;">
+        <div style="font-family:'Saira Condensed';font-weight:800;font-size:clamp(26px,3.4vw,38px);line-height:1;">RACE SETUP</div>
+        <div style="color:#8A95A6;font-size:14px;margin-top:5px;">Choose a session package to begin</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:16px;">
+      <button onClick="{{ selX3 }}" style="text-align:left;cursor:pointer;border:1px solid rgba(43,166,255,.22);border-radius:16px;overflow:hidden;background:#0E1219;color:#F2F5F9;display:flex;flex-direction:column;" style-hover="border-color:rgba(43,166,255,.5);">
+        <div style="height:4px;background:linear-gradient(90deg,#2BA6FF,#1E7FE0);"></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:11px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;font-size:11px;color:#5BC0FF;background:rgba(43,166,255,.12);padding:4px 9px;border-radius:6px;">SPRINT</span>
+            <span style="font-family:'Saira Condensed';font-weight:600;letter-spacing:.1em;font-size:11px;color:#8A95A6;">3 RACES</span>
+          </div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;line-height:1.05;">x3 Race Session</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:19px;">£15<span style="font-size:12px;color:#8A95A6;font-weight:600;"> / driver</span></span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:#2BA6FF;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;">SELECT<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+          </div>
+        </div>
+      </button>
+      <button onClick="{{ selX5 }}" style="text-align:left;cursor:pointer;border:1px solid rgba(43,166,255,.22);border-radius:16px;overflow:hidden;background:#0E1219;color:#F2F5F9;display:flex;flex-direction:column;" style-hover="border-color:rgba(43,166,255,.5);">
+        <div style="height:4px;background:linear-gradient(90deg,#5BC0FF,#2BA6FF);"></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:11px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;font-size:11px;color:#5BC0FF;background:rgba(43,166,255,.12);padding:4px 9px;border-radius:6px;">GRAND PRIX</span>
+            <span style="font-family:'Saira Condensed';font-weight:600;letter-spacing:.1em;font-size:11px;color:#8A95A6;">4 RACES</span>
+          </div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;line-height:1.05;">x4 Race Session</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:19px;">£20<span style="font-size:12px;color:#8A95A6;font-weight:600;"> / driver</span></span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:#2BA6FF;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;">SELECT<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+          </div>
+        </div>
+      </button>
+      <button onClick="{{ selMin30 }}" style="text-align:left;cursor:pointer;border:1px solid rgba(43,166,255,.22);border-radius:16px;overflow:hidden;background:#0E1219;color:#F2F5F9;display:flex;flex-direction:column;" style-hover="border-color:rgba(43,166,255,.5);">
+        <div style="height:4px;background:linear-gradient(90deg,#37C8C3,#1E9E9A);"></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:11px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;font-size:11px;color:#5FD6D1;background:rgba(55,200,195,.13);padding:4px 9px;border-radius:6px;">OPEN SESSION</span>
+            <span style="font-family:'Saira Condensed';font-weight:600;letter-spacing:.1em;font-size:11px;color:#8A95A6;">30 MIN</span>
+          </div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;line-height:1.05;">30 Minute Package</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:19px;">£25<span style="font-size:12px;color:#8A95A6;font-weight:600;"> / driver</span></span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:#37C8C3;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;">SELECT<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+          </div>
+        </div>
+      </button>
+      <button onClick="{{ selMin60 }}" style="text-align:left;cursor:pointer;border:1px solid rgba(43,166,255,.22);border-radius:16px;overflow:hidden;background:#0E1219;color:#F2F5F9;display:flex;flex-direction:column;" style-hover="border-color:rgba(43,166,255,.5);">
+        <div style="height:4px;background:linear-gradient(90deg,#5B8DEF,#3563D6);"></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:11px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;font-size:11px;color:#8FB0F5;background:rgba(91,141,239,.14);padding:4px 9px;border-radius:6px;">OPEN SESSION</span>
+            <span style="font-family:'Saira Condensed';font-weight:600;letter-spacing:.1em;font-size:11px;color:#8A95A6;">60 MIN</span>
+          </div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;line-height:1.05;">60 Minute Package</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:19px;">£45<span style="font-size:12px;color:#8A95A6;font-weight:600;"> / driver</span></span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:#5B8DEF;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;">SELECT<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+          </div>
+        </div>
+      </button>
+      <button onClick="{{ selCustom }}" style="text-align:left;cursor:pointer;border:1.5px dashed rgba(43,166,255,.45);border-radius:16px;overflow:hidden;background:linear-gradient(160deg,rgba(43,166,255,.07),rgba(43,166,255,0) 60%),#0B0F15;color:#F2F5F9;display:flex;flex-direction:column;" style-hover="border-color:rgba(43,166,255,.85);background:linear-gradient(160deg,rgba(43,166,255,.12),rgba(43,166,255,0) 60%),#0B0F15;">
+        <div style="height:4px;background:repeating-linear-gradient(90deg,#2BA6FF 0 8px,transparent 8px 14px);"></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:11px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;font-size:11px;color:#5BC0FF;background:rgba(43,166,255,.12);padding:4px 9px;border-radius:6px;">CUSTOM</span>
+            <span style="font-family:'Saira Condensed';font-weight:600;letter-spacing:.1em;font-size:11px;color:#8A95A6;">BUILD</span>
+          </div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;line-height:1.05;">Custom Combo</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+            <span style="display:inline-flex;align-items:center;gap:7px;font-family:'Saira Condensed';font-weight:800;font-size:15px;letter-spacing:.02em;color:#5BC0FF;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Pick races</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:#2BA6FF;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;">BUILD<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+          </div>
+        </div>
+      </button>
+      <button onClick="{{ selBronze }}" style="text-align:left;cursor:pointer;border:1px solid rgba(199,123,60,.3);border-radius:16px;overflow:hidden;background:#0E1219;color:#F2F5F9;display:flex;flex-direction:column;" style-hover="border-color:rgba(199,123,60,.55);">
+        <div style="height:4px;background:linear-gradient(90deg,#E0A063,#B5702F);"></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:11px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;font-size:11px;color:#D49460;background:rgba(199,123,60,.14);padding:4px 9px;border-radius:6px;">BRONZE · OPEN</span>
+            <span style="font-family:'Saira Condensed';font-weight:600;letter-spacing:.1em;font-size:11px;color:#8A95A6;">15 MIN</span>
+          </div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;line-height:1.05;">Open Bronze Package</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:19px;">£60<span style="font-size:12px;color:#8A95A6;font-weight:600;"> / EB</span></span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:#D49460;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;">SELECT<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+          </div>
+        </div>
+      </button>
+      <button onClick="{{ selSilver }}" style="text-align:left;cursor:pointer;border:1px solid rgba(199,212,228,.24);border-radius:16px;overflow:hidden;background:#0E1219;color:#F2F5F9;display:flex;flex-direction:column;" style-hover="border-color:rgba(199,212,228,.5);">
+        <div style="height:4px;background:linear-gradient(90deg,#D7DEE8,#9FB0C4);"></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:11px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;font-size:11px;color:#C7D0DC;background:rgba(199,212,228,.12);padding:4px 9px;border-radius:6px;">SILVER · OPEN</span>
+            <span style="font-family:'Saira Condensed';font-weight:600;letter-spacing:.1em;font-size:11px;color:#8A95A6;">20 MIN</span>
+          </div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;line-height:1.05;">Open Silver Package</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:19px;">£100<span style="font-size:12px;color:#8A95A6;font-weight:600;"> / EB</span></span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:#C7D0DC;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;">SELECT<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+          </div>
+        </div>
+      </button>
+      <button onClick="{{ selGold }}" style="text-align:left;cursor:pointer;border:1px solid rgba(255,176,32,.3);border-radius:16px;overflow:hidden;background:#0E1219;color:#F2F5F9;display:flex;flex-direction:column;" style-hover="border-color:rgba(255,176,32,.55);">
+        <div style="height:4px;background:linear-gradient(90deg,#FFCD5C,#E0961A);"></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:11px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;font-size:11px;color:#FFC555;background:rgba(255,176,32,.13);padding:4px 9px;border-radius:6px;">GOLD · OPEN</span>
+            <span style="font-family:'Saira Condensed';font-weight:600;letter-spacing:.1em;font-size:11px;color:#8A95A6;">30 MIN</span>
+          </div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;line-height:1.05;">Open Gold Package</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:19px;">£100<span style="font-size:12px;color:#8A95A6;font-weight:600;"> / EB</span></span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:#FFB020;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;">SELECT<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+          </div>
+        </div>
+      </button>
+      <button onClick="{{ selPlat }}" style="text-align:left;cursor:pointer;border:1px solid rgba(199,212,228,.28);border-radius:16px;overflow:hidden;background:linear-gradient(160deg,rgba(199,212,228,.07),rgba(199,212,228,0) 60%),#0E1219;color:#F2F5F9;display:flex;flex-direction:column;" style-hover="border-color:rgba(199,212,228,.55);">
+        <div style="height:4px;background:linear-gradient(90deg,#FF4FA3,#E11473);"></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:11px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;font-size:11px;color:#E7EDF5;background:rgba(199,212,228,.14);padding:4px 9px;border-radius:6px;">PLATINUM · PRO</span>
+            <span style="font-family:'Saira Condensed';font-weight:600;letter-spacing:.1em;font-size:11px;color:#8A95A6;">60 MIN</span>
+          </div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;line-height:1.05;">Open Platinum Package</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:19px;">£200<span style="font-size:12px;color:#8A95A6;font-weight:600;"> / EB</span></span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:#E7EDF5;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;">SELECT<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+          </div>
+        </div>
+      </button>
+      <button onClick="{{ selVoucher }}" style="text-align:left;cursor:pointer;border:1px solid rgba(159,122,234,.32);border-radius:16px;overflow:hidden;background:linear-gradient(160deg,rgba(159,122,234,.08),rgba(159,122,234,0) 60%),#0E1219;color:#F2F5F9;display:flex;flex-direction:column;" style-hover="border-color:rgba(159,122,234,.6);">
+        <div style="height:4px;background:linear-gradient(90deg,#1E7D4F,#0C5132);"></div>
+        <div style="padding:18px;display:flex;flex-direction:column;gap:11px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;font-size:11px;color:#C4AEF5;background:rgba(159,122,234,.14);padding:4px 9px;border-radius:6px;">VOUCHER</span>
+            <span style="font-family:'Saira Condensed';font-weight:600;letter-spacing:.1em;font-size:11px;color:#8A95A6;">REDEEM</span>
+          </div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;line-height:1.05;">Voucher Booking</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:2px;">
+            <span style="display:inline-flex;align-items:center;gap:7px;font-family:'Saira Condensed';font-weight:800;font-size:15px;letter-spacing:.02em;color:#C4AEF5;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v2a2 2 0 0 0 0 4v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a2 2 0 0 0 0-4Z"></path><path d="M12 8v8" stroke-dasharray="2 2"></path></svg>Enter code</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;color:#9F7AEA;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:13px;">SELECT<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+          </div>
+        </div>
+      </button>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===== RACE SELECT ===== -->
+  <sc-if value="{{ isRaceSelect }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:popIn .4s ease both;">
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-bottom:18px;">
+      <button onClick="{{ onBack }}" style="display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:#141A24;color:#F2F5F9;cursor:pointer;flex:none;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>
+      </button>
+      <div style="flex:1;min-width:180px;">
+        <div style="font-family:'Saira Condensed';font-weight:800;font-size:clamp(26px,3.4vw,38px);line-height:1;">SELECT RACE</div>
+        <div style="color:#8A95A6;font-size:14px;margin-top:5px;">Pre-built race packages · car, circuit &amp; assists ready to load</div>
+      </div>
+      <span style="display:inline-flex;align-items:center;gap:9px;padding:9px 16px;border-radius:999px;background:rgba(43,166,255,.1);border:1px solid rgba(43,166,255,.3);font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:14px;color:#5BC0FF;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"></path><path d="M5 5h12l-2.2 3.6L17 12H5"></path></svg>{{ pkgName }}
+      </span>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-bottom:20px;padding:13px 18px;background:#0E1219;border:1px solid rgba(255,255,255,.07);border-radius:14px;">
+      <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;font-size:11px;color:#6B7689;margin-right:4px;">SESSION RULES</span>
+      <sc-for list="{{ aidChips }}" as="a" hint-placeholder-count="4">
+        <button onClick="{{ a.onCycle }}" style="display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border-radius:7px;background:#141A24;border:1px solid rgba(255,255,255,.1);cursor:pointer;font-family:'Saira Condensed';font-weight:700;letter-spacing:.05em;font-size:11.5px;color:#9FB0C4;" style-hover="border-color:rgba(43,166,255,.5);background:#19222e;">
+          {{ a.label }}&nbsp;·&nbsp;<span style="color:{{ a.color }};">{{ a.val }}</span>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#5A6475" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 23l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+        </button>
+      </sc-for>
+      <button onClick="{{ onRulesExpand }}" style="margin-left:auto;display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:8px;border:1px solid rgba(43,166,255,.4);background:rgba(43,166,255,.08);color:#5BC0FF;cursor:pointer;font-family:'Saira Condensed';font-weight:700;letter-spacing:.1em;font-size:11px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"></path><path d="M9 21H3v-6"></path><path d="M21 3l-7 7"></path><path d="M3 21l7-7"></path></svg>EXPAND
+      </button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(282px,1fr));gap:16px;">
+      <sc-for list="{{ raceList }}" as="r" hint-placeholder-count="3">
+        <button onClick="{{ r.onSelect }}" style="position:relative;text-align:left;cursor:pointer;border:1px solid rgba(255,255,255,.09);border-radius:18px;overflow:hidden;background:#0E1219;color:#F2F5F9;display:flex;flex-direction:column;min-height:248px;" style-hover="border-color:rgba(255,255,255,.2);">
+          <sc-if value="{{ r.isSelected }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;inset:0;border:2px solid #2BA6FF;border-radius:18px;box-shadow:0 0 0 4px rgba(43,166,255,.14);pointer-events:none;z-index:2;"></span><span style="position:absolute;top:13px;right:13px;z-index:3;width:28px;height:28px;border-radius:50%;background:#2BA6FF;color:#04101D;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(43,166,255,.5);font-family:'Saira Condensed';font-weight:800;font-size:16px;">{{ r.order }}</span></sc-if>
+          <div style="height:5px;background:{{ r.color }};"></div>
+          <div style="position:relative;height:132px;background:radial-gradient(130% 150% at 50% 0%,#10161f,#090d13);overflow:hidden;border-bottom:1px solid rgba(255,255,255,.06);">
+            <svg viewBox="0 0 120 70" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style="position:absolute;inset:0;padding:16px 22px;box-sizing:border-box;">
+              <path d="{{ r.map }}" fill="{{ r.color }}" opacity="0.07"></path>
+              <path d="{{ r.map }}" fill="none" stroke="{{ r.color }}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.9"></path>
+            </svg>
+            <div style="position:absolute;left:50%;bottom:13px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:5px;">
+              <div style="position:relative;width:17px;height:27px;filter:drop-shadow(0 0 7px {{ r.color }});">
+                <div style="position:absolute;left:1px;right:1px;top:0;height:3px;border-radius:1px;background:{{ r.color }};"></div>
+                <div style="position:absolute;left:3.5px;right:3.5px;top:2px;bottom:3px;border-radius:5px;background:{{ r.color }};"></div>
+                <div style="position:absolute;left:5.5px;right:5.5px;top:9px;height:7px;border-radius:3px;background:#0A0E14;"></div>
+                <div style="position:absolute;left:1px;right:1px;bottom:0;height:3px;border-radius:1px;background:{{ r.color }};"></div>
+              </div>
+              <div style="width:30px;height:6px;border-radius:1px;background:repeating-linear-gradient(90deg,#e9edf3 0 3px,#0a0e14 3px 6px);opacity:.85;"></div>
+            </div>
+            <span style="position:absolute;top:11px;left:16px;display:inline-flex;align-items:baseline;gap:7px;">
+              <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.2em;font-size:10px;color:#6B7689;">RACE</span>
+              <span style="font-family:'Saira Condensed';font-weight:800;font-size:22px;line-height:1;color:{{ r.color }};">{{ r.n }}</span>
+            </span>
+            <span style="position:absolute;top:13px;right:16px;font-family:'Saira Condensed';font-weight:700;letter-spacing:.14em;font-size:10px;color:#C7D0DC;background:rgba(255,255,255,.07);padding:4px 8px;border-radius:5px;">{{ r.cls }}</span>
+            <span style="position:absolute;bottom:11px;left:16px;font-family:'Saira Condensed';font-weight:600;letter-spacing:.1em;font-size:10px;color:#8A95A6;">{{ r.loc }}</span>
+            <span style="position:absolute;bottom:11px;right:16px;font-family:'Saira Condensed';font-weight:600;letter-spacing:.06em;font-size:10px;color:#8A95A6;">{{ r.len }} · {{ r.turns }}</span>
+          </div>
+          <div style="padding:18px 20px;display:flex;flex-direction:column;gap:12px;flex:1;">
+            <div>
+              <div style="font-size:11px;font-weight:600;letter-spacing:.2em;color:#6B7689;margin-bottom:4px;">CAR</div>
+              <div style="font-family:'Saira Condensed';font-weight:800;font-size:24px;line-height:1.05;">{{ r.car }}</div>
+            </div>
+            <div style="border-top:1px solid rgba(255,255,255,.07);padding-top:11px;">
+              <div style="font-size:11px;font-weight:600;letter-spacing:.2em;color:#6B7689;margin-bottom:4px;">CIRCUIT</div>
+              <div style="font-family:'Saira Condensed';font-weight:700;font-size:18px;line-height:1.1;">{{ r.track }}</div>
+            </div>
+            <div style="margin-top:auto;display:flex;align-items:center;justify-content:flex-end;padding-top:4px;">
+              <sc-if value="{{ r.isSelected }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:7px;color:#2BA6FF;font-family:'Saira Condensed';font-weight:700;letter-spacing:.1em;font-size:14px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"></path></svg>RACE {{ r.order }} ADDED</span></sc-if>
+              <sc-if value="{{ r.notSelected }}" hint-placeholder-val="{{ true }}"><span style="display:inline-flex;align-items:center;gap:7px;color:{{ r.color }};font-family:'Saira Condensed';font-weight:700;letter-spacing:.1em;font-size:14px;">ADD RACE<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg></span></sc-if>
+            </div>
+          </div>
+        </button>
+      </sc-for>
+    </div>
+    <div style="margin-top:18px;display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:16px 18px;background:#0B0F15;border:1px solid rgba(255,255,255,.07);border-radius:14px;">
+      <div style="display:flex;align-items:center;gap:9px;margin-right:4px;">
+        <span style="display:inline-flex;width:30px;height:30px;border-radius:9px;align-items:center;justify-content:center;background:rgba(43,166,255,.14);color:#5BC0FF;flex:none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h10"></path></svg></span>
+        <div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:13px;letter-spacing:.1em;color:#C7D0DC;">QUICK COMBOS</div>
+          <div style="font-size:11px;color:#6B7689;">Preset race line-ups — loaded in order</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-left:auto;">
+        <sc-for list="{{ combos }}" as="cb" hint-placeholder-count="3">
+          <button onClick="{{ cb.onPick }}" style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;border-radius:11px;border:1px solid rgba(43,166,255,.3);background:rgba(43,166,255,.07);color:#F2F5F9;text-align:left;" style-hover="border-color:rgba(43,166,255,.6);background:rgba(43,166,255,.12);">
+            <span style="display:inline-flex;width:26px;height:26px;border-radius:50%;align-items:center;justify-content:center;background:#2BA6FF;color:#04101D;font-family:'Saira Condensed';font-weight:800;font-size:14px;flex:none;">{{ cb.n }}</span>
+            <span style="display:flex;flex-direction:column;">
+              <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.04em;font-size:13px;">{{ cb.label }}</span>
+              <span style="font-size:11px;color:#8A95A6;">{{ cb.desc }}</span>
+            </span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;margin-top:24px;padding:18px 22px;background:#0E1219;border:1px solid rgba(255,255,255,.08);border-radius:16px;">
+      <div style="display:flex;align-items:center;gap:13px;">
+        <span style="font-family:'Saira Condensed';font-weight:800;font-size:36px;line-height:1;color:#2BA6FF;min-width:34px;text-align:center;">{{ raceSelCount }}</span>
+        <span style="color:#8A95A6;font-size:14px;line-height:1.4;">races queued for<br><b style="color:#F2F5F9;">{{ pkgName }}</b></span>
+      </div>
+      <sc-if value="{{ hasRaceSel }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ onRacesContinue }}" style="display:inline-flex;align-items:center;gap:10px;height:56px;padding:0 28px;border-radius:13px;border:0;background:linear-gradient(135deg,#2BA6FF,#1E7FE0);color:#04101D;font-family:'Saira Condensed';font-weight:800;letter-spacing:.08em;font-size:17px;cursor:pointer;box-shadow:0 8px 24px rgba(43,166,255,.3);">CONTINUE TO PODS<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></button>
+      </sc-if>
+      <sc-if value="{{ noRaceSel }}" hint-placeholder-val="{{ true }}">
+        <button disabled="" style="display:inline-flex;align-items:center;gap:10px;height:56px;padding:0 28px;border-radius:13px;border:1px solid rgba(255,255,255,.08);background:#141A24;color:#5A6475;font-family:'Saira Condensed';font-weight:800;letter-spacing:.08em;font-size:17px;cursor:not-allowed;">SELECT AT LEAST ONE RACE</button>
+      </sc-if>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===== POD SELECTION ===== -->
+  <sc-if value="{{ isPods }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:popIn .4s ease both;">
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-bottom:24px;">
+      <button onClick="{{ onBack }}" style="display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:#141A24;color:#F2F5F9;cursor:pointer;flex:none;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>
+      </button>
+      <div style="flex:1;min-width:180px;">
+        <div style="font-family:'Saira Condensed';font-weight:800;font-size:clamp(26px,3.4vw,38px);line-height:1;">SELECT SIM PODS</div>
+        <div style="color:#8A95A6;font-size:14px;margin-top:5px;">Tap the pods joining this race</div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:9px;">
+        <span style="display:inline-flex;align-items:center;gap:9px;padding:9px 16px;border-radius:999px;background:rgba(43,166,255,.1);border:1px solid rgba(43,166,255,.3);font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:14px;color:#5BC0FF;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"></path><path d="M5 5h12l-2.2 3.6L17 12H5"></path></svg>{{ pkgName }}
+        </span>
+        <span style="display:inline-flex;align-items:center;gap:9px;padding:9px 16px;border-radius:999px;background:#141A24;border:1px solid rgba(255,255,255,.1);font-family:'Saira Condensed';font-weight:700;letter-spacing:.04em;font-size:14px;color:#C7D0DC;">{{ raceCar }} · {{ raceTrack }}</span>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;">
+      <sc-for list="{{ pods }}" as="p" hint-placeholder-count="8">
+        <sc-if value="{{ p.isSelected }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ p.onSelect }}" style="position:relative;cursor:pointer;text-align:center;border:2px solid #2BA6FF;border-radius:18px;padding:26px 14px;background:linear-gradient(160deg,rgba(43,166,255,.22),rgba(43,166,255,.05));color:#fff;box-shadow:0 0 0 4px rgba(43,166,255,.14),0 12px 32px rgba(43,166,255,.2);min-height:158px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">
+            <span style="position:absolute;top:12px;right:12px;width:26px;height:26px;border-radius:50%;background:#2BA6FF;color:#04101D;display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"></path></svg></span>
+            <span style="font-size:11px;letter-spacing:.24em;color:#9FD4FF;">POD</span>
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:54px;line-height:1;">{{ p.num }}</span>
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.12em;font-size:13px;color:#5BC0FF;">SELECTED</span>
+          </button>
+        </sc-if>
+        <sc-if value="{{ p.notSelected }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ p.onSelect }}" style="cursor:pointer;text-align:center;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:26px 14px;background:#141A24;color:#F2F5F9;min-height:158px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">
+            <span style="font-size:11px;letter-spacing:.24em;color:#6B7689;">POD</span>
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:54px;line-height:1;">{{ p.num }}</span>
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.12em;font-size:13px;color:{{ p.color }};">{{ p.label }}</span>
+          </button>
+        </sc-if>
+        <sc-if value="{{ p.unselectable }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center;border:1px dashed rgba(255,255,255,.1);border-radius:18px;padding:26px 14px;background:rgba(20,26,36,.45);min-height:158px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;opacity:.65;">
+            <span style="font-size:11px;letter-spacing:.24em;color:#5A6475;">POD</span>
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:54px;line-height:1;color:#5A6475;">{{ p.num }}</span>
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.1em;font-size:12px;color:{{ p.color }};">{{ p.label }}</span>
+          </div>
+        </sc-if>
+      </sc-for>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;margin-top:24px;padding:18px 22px;background:#0E1219;border:1px solid rgba(255,255,255,.08);border-radius:16px;">
+      <div style="display:flex;align-items:center;gap:13px;">
+        <span style="font-family:'Saira Condensed';font-weight:800;font-size:36px;line-height:1;color:#2BA6FF;min-width:34px;text-align:center;">{{ selCount }}</span>
+        <span style="color:#8A95A6;font-size:14px;line-height:1.4;">pods selected for<br><b style="color:#F2F5F9;">{{ pkgName }}</b></span>
+      </div>
+      <sc-if value="{{ hasSel }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ onSubmit }}" style="display:inline-flex;align-items:center;gap:10px;height:56px;padding:0 28px;border-radius:13px;border:0;background:linear-gradient(135deg,#2BA6FF,#1E7FE0);color:#04101D;font-family:'Saira Condensed';font-weight:800;letter-spacing:.08em;font-size:17px;cursor:pointer;box-shadow:0 8px 24px rgba(43,166,255,.3);">SUBMIT RACE SETUP<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></button>
+      </sc-if>
+      <sc-if value="{{ noSel }}" hint-placeholder-val="{{ true }}">
+        <button disabled="" style="display:inline-flex;align-items:center;gap:10px;height:56px;padding:0 28px;border-radius:13px;border:1px solid rgba(255,255,255,.08);background:#141A24;color:#5A6475;font-family:'Saira Condensed';font-weight:800;letter-spacing:.08em;font-size:17px;cursor:not-allowed;">SELECT AT LEAST ONE POD</button>
+      </sc-if>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===== LOBBY / SESSION HOST ===== -->
+  <sc-if value="{{ isLobby }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:popIn .4s ease both;">
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-bottom:24px;">
+      <button onClick="{{ onBack }}" style="display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:#141A24;color:#F2F5F9;cursor:pointer;flex:none;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>
+      </button>
+      <div style="flex:1;min-width:180px;">
+        <div style="display:flex;align-items:center;gap:11px;font-family:'Saira Condensed';font-weight:600;letter-spacing:.3em;font-size:12px;color:#2BA6FF;">
+          <span style="width:8px;height:8px;border-radius:50%;background:#2FD27A;animation:livePulse 1.4s infinite;"></span>HOSTING ON PROJECT CARS 2
+        </div>
+        <div style="font-family:'Saira Condensed';font-weight:800;font-size:clamp(26px,3.4vw,38px);line-height:1;margin-top:8px;">CREATING RACE LOBBY</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px;align-items:start;">
+      <div style="background:#0E1219;border:1px solid rgba(255,255,255,.08);border-radius:18px;overflow:hidden;">
+        <div style="height:5px;background:{{ raceColor }};"></div>
+        <div style="padding:22px;display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="display:inline-flex;align-items:baseline;gap:9px;">
+              <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.2em;font-size:12px;color:#6B7689;">RACE</span>
+              <span style="font-family:'Saira Condensed';font-weight:800;font-size:26px;line-height:1;color:{{ raceColor }};">{{ raceN }}</span>
+            </span>
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.14em;font-size:11px;color:#C7D0DC;background:rgba(255,255,255,.06);padding:5px 10px;border-radius:6px;">{{ raceCls }}</span>
+          </div>
+          <div>
+            <div style="font-family:'Saira Condensed';font-weight:800;font-size:24px;line-height:1.05;">{{ raceCar }}</div>
+            <div style="color:#9FB0C4;font-size:15px;margin-top:5px;">{{ raceTrack }} · {{ raceLoc }}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:9px;border-top:1px solid rgba(255,255,255,.07);padding-top:15px;">
+            <button onClick="{{ onCycleDrive }}" title="Tap to change driving aids" style="display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:0;cursor:pointer;color:inherit;text-align:left;padding:5px 8px;margin:0 -8px;border-radius:8px;" style-hover="background:rgba(255,255,255,.04);"><span style="color:#8A95A6;font-size:13px;">Driving aids</span><span style="display:inline-flex;align-items:center;gap:6px;font-family:'Saira Condensed';font-weight:700;font-size:14px;color:{{ aidDriveColor }};letter-spacing:.04em;">{{ aidDrive }}<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#5A6475" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 23l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg></span></button>
+            <button onClick="{{ onCycleGear }}" title="Tap to change gearbox" style="display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:0;cursor:pointer;color:inherit;text-align:left;padding:5px 8px;margin:0 -8px;border-radius:8px;" style-hover="background:rgba(255,255,255,.04);"><span style="color:#8A95A6;font-size:13px;">Gearbox</span><span style="display:inline-flex;align-items:center;gap:6px;font-family:'Saira Condensed';font-weight:700;font-size:14px;color:{{ aidGearColor }};letter-spacing:.04em;">{{ aidGear }}<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#5A6475" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 23l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg></span></button>
+            <button onClick="{{ onCycleBrake }}" title="Tap to change braking assist" style="display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:0;cursor:pointer;color:inherit;text-align:left;padding:5px 8px;margin:0 -8px;border-radius:8px;" style-hover="background:rgba(255,255,255,.04);"><span style="color:#8A95A6;font-size:13px;">Braking assist</span><span style="display:inline-flex;align-items:center;gap:6px;font-family:'Saira Condensed';font-weight:700;font-size:14px;color:{{ aidBrakeColor }};letter-spacing:.04em;">{{ aidBrake }}<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#5A6475" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 23l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg></span></button>
+            <button onClick="{{ onCycleSteer }}" title="Tap to change steering assist" style="display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:0;cursor:pointer;color:inherit;text-align:left;padding:5px 8px;margin:0 -8px;border-radius:8px;" style-hover="background:rgba(255,255,255,.04);"><span style="color:#8A95A6;font-size:13px;">Steering assist</span><span style="display:inline-flex;align-items:center;gap:6px;font-family:'Saira Condensed';font-weight:700;font-size:14px;color:{{ aidSteerColor }};letter-spacing:.04em;">{{ aidSteer }}<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#5A6475" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 23l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg></span></button>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#0E1219;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:16px;">
+        <div style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.14em;font-size:13px;color:#C7D0DC;">SESSION STATUS</div>
+        <sc-for list="{{ lobbySteps }}" as="st" hint-placeholder-count="3">
+          <div style="display:flex;gap:14px;align-items:flex-start;">
+            <sc-if value="{{ st.stDone }}" hint-placeholder-val="{{ false }}"><span style="width:27px;height:27px;border-radius:50%;background:#2FD27A;color:#04140B;display:flex;align-items:center;justify-content:center;flex:none;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"></path></svg></span></sc-if>
+            <sc-if value="{{ st.stActive }}" hint-placeholder-val="{{ true }}"><span style="width:27px;height:27px;border-radius:50%;border:2.5px solid rgba(43,166,255,.25);border-top-color:#2BA6FF;animation:spin .8s linear infinite;flex:none;"></span></sc-if>
+            <sc-if value="{{ st.stPend }}" hint-placeholder-val="{{ false }}"><span style="width:27px;height:27px;border-radius:50%;border:1px solid rgba(255,255,255,.14);color:#6B7689;display:flex;align-items:center;justify-content:center;flex:none;font-family:'Saira Condensed';font-weight:700;font-size:13px;">{{ st.idx }}</span></sc-if>
+            <div style="flex:1;">
+              <div style="font-family:'Saira Condensed';font-weight:700;font-size:17px;line-height:1.1;">{{ st.title }}</div>
+              <div style="color:#8A95A6;font-size:13px;margin-top:3px;">{{ st.subTxt }}</div>
+            </div>
+          </div>
+        </sc-for>
+
+        <div style="display:flex;flex-wrap:wrap;gap:8px;border-top:1px solid rgba(255,255,255,.07);padding-top:16px;">
+          <sc-for list="{{ joinChips }}" as="c" hint-placeholder-count="4">
+            <sc-if value="{{ c.on }}" hint-placeholder-val="{{ false }}">
+              <span style="display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:9px;background:rgba(47,210,122,.12);border:1px solid rgba(47,210,122,.3);font-family:'Saira Condensed';font-weight:700;font-size:12px;letter-spacing:.05em;color:#2FD27A;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"></path></svg>POD {{ c.num }}</span>
+            </sc-if>
+            <sc-if value="{{ c.off }}" hint-placeholder-val="{{ true }}">
+              <span style="display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:9px;background:#141A24;border:1px solid rgba(255,255,255,.08);font-family:'Saira Condensed';font-weight:700;font-size:12px;letter-spacing:.05em;color:#6B7689;"><span style="width:11px;height:11px;border-radius:50%;border:2px solid rgba(255,255,255,.2);border-top-color:#8A95A6;animation:spin .8s linear infinite;"></span>POD {{ c.num }}</span>
+            </sc-if>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ lobbyReady }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ onProceed }}" style="height:60px;border:0;border-radius:14px;background:linear-gradient(135deg,#2FD27A,#16A85B);color:#04140B;font-family:'Saira Condensed';font-weight:800;letter-spacing:.08em;font-size:18px;cursor:pointer;box-shadow:0 10px 28px rgba(47,210,122,.3);display:inline-flex;align-items:center;justify-content:center;gap:11px;animation:popIn .3s ease both;">PROCEED TO GRID<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></button>
+        </sc-if>
+        <sc-if value="{{ lobbyWorking }}" hint-placeholder-val="{{ true }}">
+          <div style="height:60px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:#141A24;color:#8A95A6;display:inline-flex;align-items:center;justify-content:center;gap:10px;font-family:'Saira Condensed';font-weight:700;letter-spacing:.1em;font-size:15px;"><span style="width:16px;height:16px;border-radius:50%;border:2.5px solid rgba(255,255,255,.18);border-top-color:#8A95A6;animation:spin .8s linear infinite;"></span>SYNCHRONISING SESSION…</div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===== RACE READY ===== -->
+  <sc-if value="{{ isRaceReady }}" hint-placeholder-val="{{ false }}">
+  <div style="animation:popIn .4s ease both;display:flex;flex-direction:column;align-items:center;text-align:center;padding:clamp(16px,4vw,52px) 0;">
+    <div style="width:88px;height:88px;border-radius:50%;background:linear-gradient(160deg,#2FD27A,#16A85B);display:flex;align-items:center;justify-content:center;color:#04140B;animation:ringPulse 1.8s infinite;">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"></path></svg>
+    </div>
+    <div style="font-family:'Saira Condensed';font-weight:600;letter-spacing:.34em;font-size:14px;color:#2FD27A;margin-top:26px;">RACE READY</div>
+    <div style="font-family:'Saira Condensed';font-weight:800;font-size:clamp(38px,6.6vw,64px);line-height:1;margin-top:10px;">{{ pkgName }}</div>
+    <div style="font-family:'Saira Condensed';font-weight:700;font-size:clamp(18px,2.8vw,26px);color:#C7D0DC;margin-top:14px;">{{ raceCar }} · {{ raceTrack }}</div>
+    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:16px;" data-comment-anchor="6b42fa613d-div">
+      <button onClick="{{ onCycleDrive }}" title="Tap to change driving aids" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;background:#141A24;border:1px solid rgba(255,255,255,.08);font-family:'Saira Condensed';font-weight:700;letter-spacing:.05em;font-size:12px;color:#9FB0C4;cursor:pointer;" style-hover="border-color:rgba(43,166,255,.45);">AIDS&nbsp;·&nbsp;<span style="color:{{ aidDriveColor }};">{{ aidDrive }}</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#5A6475" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 23l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg></button>
+      <button onClick="{{ onCycleGear }}" title="Tap to change gearbox" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;background:#141A24;border:1px solid rgba(255,255,255,.08);font-family:'Saira Condensed';font-weight:700;letter-spacing:.05em;font-size:12px;color:#9FB0C4;cursor:pointer;" style-hover="border-color:rgba(43,166,255,.45);">GEARBOX&nbsp;·&nbsp;<span style="color:{{ aidGearColor }};">{{ aidGear }}</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#5A6475" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 23l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg></button>
+      <button onClick="{{ onCycleBrake }}" title="Tap to change braking assist" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;background:#141A24;border:1px solid rgba(255,255,255,.08);font-family:'Saira Condensed';font-weight:700;letter-spacing:.05em;font-size:12px;color:#9FB0C4;cursor:pointer;" style-hover="border-color:rgba(43,166,255,.45);">BRAKING&nbsp;·&nbsp;<span style="color:{{ aidBrakeColor }};">{{ aidBrake }}</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#5A6475" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 23l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg></button>
+      <button onClick="{{ onCycleSteer }}" title="Tap to change steering assist" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;background:#141A24;border:1px solid rgba(255,255,255,.08);font-family:'Saira Condensed';font-weight:700;letter-spacing:.05em;font-size:12px;color:#9FB0C4;cursor:pointer;" style-hover="border-color:rgba(43,166,255,.45);">STEERING&nbsp;·&nbsp;<span style="color:{{ aidSteerColor }};">{{ aidSteer }}</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#5A6475" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 23l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg></button>
+    </div>
+    <div style="color:#C7D0DC;font-size:clamp(16px,2.4vw,20px);margin-top:18px;max-width:560px;">Pods <b style="color:#fff;">{{ selLabel }}</b> are entered and ready to start.</div>
+
+    <div style="width:min(680px,100%);margin-top:38px;display:flex;flex-direction:column;gap:14px;">
+      <button onClick="{{ onStart }}" style="height:68px;border:0;border-radius:16px;background:linear-gradient(135deg,#2FD27A,#16A85B);color:#04140B;font-family:'Saira Condensed';font-weight:800;letter-spacing:.1em;font-size:22px;cursor:pointer;box-shadow:0 12px 32px rgba(47,210,122,.3);display:inline-flex;align-items:center;justify-content:center;gap:13px;">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"></path><path d="M5 5h12l-2.2 3.6L17 12H5"></path></svg>START RACE
+      </button>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:12px;">
+        <button onClick="{{ onEdit }}" style="height:54px;border-radius:13px;border:1px solid rgba(43,166,255,.4);background:rgba(43,166,255,.08);color:#5BC0FF;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:15px;cursor:pointer;">EDIT PODS</button>
+        <button onClick="{{ onCancel }}" style="height:54px;border-radius:13px;border:1px solid rgba(255,59,92,.4);background:rgba(255,59,92,.07);color:#FF6B82;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:15px;cursor:pointer;">CANCEL SETUP</button>
+        <button onClick="{{ onHome }}" style="height:54px;border-radius:13px;border:1px solid rgba(255,255,255,.12);background:#141A24;color:#C7D0DC;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:15px;cursor:pointer;">BACK TO DASHBOARD</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+
+<!-- ===== PRINT DIALOG ===== -->
+<sc-if value="{{ showPrint }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ onClosePrint }}" style="position:fixed;inset:0;z-index:58;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(4,6,10,.74);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:overlayIn .25s ease both;">
+  <div onClick="{{ stop }}" style="width:min(480px,100%);background:#10151D;border:1px solid rgba(255,255,255,.1);border-radius:20px;overflow:hidden;animation:popIn .3s ease both;">
+    <div style="display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.07);">
+      <span style="display:inline-flex;width:40px;height:40px;border-radius:11px;background:rgba(43,166,255,.16);color:#5BC0FF;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8" rx="1"></rect></svg></span>
+      <div style="flex:1;">
+        <div style="font-family:'Saira Condensed';font-weight:800;font-size:21px;letter-spacing:.04em;">PRINT</div>
+        <div style="font-size:12px;color:#8A95A6;">Choose what to send to the printer</div>
+      </div>
+      <button onClick="{{ onClosePrint }}" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#141A24;color:#C7D0DC;cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg></button>
+    </div>
+    <div style="padding:16px 18px 22px;display:flex;flex-direction:column;gap:10px;">
+      <sc-for list="{{ printRows }}" as="d" hint-placeholder-count="4">
+        <button onClick="{{ d.onToggle }}" style="display:flex;align-items:center;gap:13px;cursor:pointer;text-align:left;padding:14px 16px;border-radius:12px;background:#141A24;border:1px solid rgba(255,255,255,.08);color:#F2F5F9;" style-hover="border-color:rgba(43,166,255,.4);">
+          <sc-if value="{{ d.on }}" hint-placeholder-val="{{ true }}"><span style="display:inline-flex;width:24px;height:24px;border-radius:7px;background:#2BA6FF;color:#04101D;align-items:center;justify-content:center;flex:none;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"></path></svg></span></sc-if>
+          <sc-if value="{{ d.off }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;width:24px;height:24px;border-radius:7px;background:transparent;border:1px solid rgba(255,255,255,.2);flex:none;"></span></sc-if>
+          <span style="display:flex;flex-direction:column;gap:2px;flex:1;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.04em;font-size:15px;">{{ d.label }}</span>
+            <span style="font-size:12px;color:#8A95A6;">{{ d.sub }}</span>
+          </span>
+        </button>
+      </sc-for>
+      <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:12px;margin-top:8px;">
+        <button onClick="{{ onClosePrint }}" style="height:52px;border-radius:13px;border:1px solid rgba(255,255,255,.12);background:#141A24;color:#C7D0DC;font-family:'Saira Condensed';font-weight:700;letter-spacing:.06em;font-size:15px;cursor:pointer;">CANCEL</button>
+        <button onClick="{{ onConfirmPrint }}" style="height:52px;border-radius:13px;border:0;background:linear-gradient(135deg,#2BA6FF,#1E7FE0);color:#04101D;font-family:'Saira Condensed';font-weight:800;letter-spacing:.06em;font-size:15px;cursor:pointer;box-shadow:0 8px 22px rgba(43,166,255,.3);display:inline-flex;align-items:center;justify-content:center;gap:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8" rx="1"></rect></svg>PRINT</button>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ===== MODALS ===== -->
+<sc-if value="{{ showModal }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ onCloseModal }}" style="position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(4,6,10,.74);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:overlayIn .25s ease both;">
+
+  <sc-if value="{{ mUnlockConfirm }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ stop }}" style="width:min(480px,100%);background:#10151D;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:30px;animation:popIn .3s ease both;">
+      <div style="width:56px;height:56px;border-radius:14px;background:rgba(43,166,255,.14);color:#5BC0FF;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2"></rect><path d="M8 10.5V7a4 4 0 0 1 7.7-1.6"></path></svg>
+      </div>
+      <div style="font-family:'Saira Condensed';font-weight:800;font-size:28px;line-height:1.05;">Unlock all pods?</div>
+      <div style="color:#9AA6B6;font-size:15px;line-height:1.55;margin-top:12px;">This will open all <b style="color:#F2F5F9;">{{ unlockCount }}</b> connected pods for customer use. A till transaction is required before they go live.</div>
+      <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:12px;margin-top:26px;">
+        <button onClick="{{ onCloseModal }}" style="height:54px;border-radius:13px;border:1px solid rgba(255,255,255,.12);background:#141A24;color:#C7D0DC;font-family:'Saira Condensed';font-weight:700;letter-spacing:.06em;font-size:16px;cursor:pointer;">CANCEL</button>
+        <button onClick="{{ onConfirmUnlock }}" style="height:54px;border-radius:13px;border:0;background:linear-gradient(135deg,#2BA6FF,#1E7FE0);color:#04101D;font-family:'Saira Condensed';font-weight:800;letter-spacing:.06em;font-size:16px;cursor:pointer;box-shadow:0 8px 22px rgba(43,166,255,.3);">CONTINUE TO TILL</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ mTill }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ stop }}" style="width:min(520px,100%);background:#10151D;border:1px solid rgba(255,255,255,.1);border-radius:20px;overflow:hidden;animation:popIn .3s ease both;">
+      <div style="display:flex;align-items:center;gap:12px;padding:20px 26px;background:linear-gradient(90deg,rgba(43,166,255,.14),transparent);border-bottom:1px solid rgba(255,255,255,.08);">
+        <span style="display:inline-flex;width:40px;height:40px;border-radius:11px;background:rgba(43,166,255,.16);color:#5BC0FF;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"></rect><path d="M3 10h18"></path></svg></span>
+        <div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:21px;letter-spacing:.04em;">TILL TRANSACTION</div>
+          <div style="font-size:12px;color:#8A95A6;letter-spacing:.04em;">Take payment to unlock the pods</div>
+        </div>
+      </div>
+      <div style="padding:24px 26px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.07);">
+          <span style="color:#C7D0DC;font-size:15px;">{{ unlockCount }} × Pod unlock <span style="color:#8A95A6;">@ {{ perPrice }}</span></span>
+          <span style="font-family:'Saira Condensed';font-weight:700;font-size:17px;">{{ total }}</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 0 4px;">
+          <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.1em;font-size:14px;color:#8A95A6;">TOTAL DUE</span>
+          <span style="font-family:'Saira Condensed';font-weight:800;font-size:38px;line-height:1;color:#fff;">{{ total }}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px;">
+          <div style="height:50px;border-radius:12px;border:1px solid rgba(43,166,255,.5);background:rgba(43,166,255,.1);color:#5BC0FF;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Saira Condensed';font-weight:700;letter-spacing:.06em;font-size:15px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"></rect><path d="M3 10h18"></path></svg>CARD
+          </div>
+          <div style="height:50px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:#141A24;color:#8A95A6;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Saira Condensed';font-weight:700;letter-spacing:.06em;font-size:15px;">CASH</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:12px;margin-top:22px;">
+          <button onClick="{{ onCloseModal }}" style="height:56px;border-radius:13px;border:1px solid rgba(255,255,255,.12);background:#141A24;color:#C7D0DC;font-family:'Saira Condensed';font-weight:700;letter-spacing:.06em;font-size:16px;cursor:pointer;">CANCEL</button>
+          <button onClick="{{ onConfirmPayment }}" style="height:56px;border-radius:13px;border:0;background:linear-gradient(135deg,#2FD27A,#16A85B);color:#04140B;font-family:'Saira Condensed';font-weight:800;letter-spacing:.06em;font-size:16px;cursor:pointer;box-shadow:0 8px 22px rgba(47,210,122,.3);display:inline-flex;align-items:center;justify-content:center;gap:9px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"></path></svg>CONFIRM PAYMENT</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ mSuccess }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ stop }}" style="width:min(440px,100%);background:#10151D;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:36px 30px;text-align:center;animation:popIn .3s ease both;">
+      <div style="width:74px;height:74px;border-radius:50%;background:linear-gradient(160deg,#2FD27A,#16A85B);color:#04140B;display:flex;align-items:center;justify-content:center;margin:0 auto;animation:ringPulse 1.8s infinite;">
+        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"></path></svg>
+      </div>
+      <div style="font-family:'Saira Condensed';font-weight:800;font-size:28px;margin-top:22px;">All pods unlocked</div>
+      <div style="color:#9AA6B6;font-size:15px;line-height:1.55;margin-top:10px;">All <b style="color:#F2F5F9;">{{ unlockCount }}</b> pods are now open for customer use.</div>
+      <button onClick="{{ onCloseModal }}" style="width:100%;height:54px;border-radius:13px;border:0;background:linear-gradient(135deg,#2BA6FF,#1E7FE0);color:#04101D;font-family:'Saira Condensed';font-weight:800;letter-spacing:.06em;font-size:16px;cursor:pointer;margin-top:26px;box-shadow:0 8px 22px rgba(43,166,255,.3);">DONE</button>
+    </div>
+  </sc-if>
+
+</div>
+</sc-if>
+
+<!-- ===== STAT GROUP LIST ===== -->
+<sc-if value="{{ showStat }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ onStatClose }}" style="position:fixed;inset:0;z-index:52;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(4,6,10,.74);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:overlayIn .25s ease both;">
+  <div onClick="{{ stop }}" style="width:min(620px,100%);max-height:88vh;overflow:auto;background:#10151D;border:1px solid rgba(255,255,255,.1);border-radius:20px;animation:popIn .3s ease both;">
+    <div style="display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.07);position:sticky;top:0;background:#10151D;z-index:1;">
+      <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;letter-spacing:.04em;">{{ statTitle }}</div>
+      <span style="font-family:'Saira Condensed';font-weight:700;font-size:14px;color:#5BC0FF;background:rgba(43,166,255,.12);padding:4px 11px;border-radius:999px;">{{ statCount }}</span>
+      <div style="flex:1;"></div>
+      <button onClick="{{ onStatClose }}" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#141A24;color:#C7D0DC;cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg></button>
+    </div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:10px;">
+      <sc-if value="{{ statEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;color:#8A95A6;font-size:14px;padding:30px 0;">No pods in this group right now.</div>
+      </sc-if>
+      <sc-for list="{{ statList }}" as="p" hint-placeholder-count="4">
+        <button onClick="{{ p.onOpen }}" style="text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px;background:#141A24;border:1px solid rgba(255,255,255,.07);border-left:3px solid {{ p.color }};border-radius:12px;padding:14px 16px;color:#F2F5F9;" style-hover="border-color:rgba(255,255,255,.18);background:#171f2b;">
+          <span style="font-family:'Saira Condensed';font-weight:800;font-size:26px;line-height:1;min-width:34px;">{{ p.num }}</span>
+          <span style="display:flex;flex-direction:column;gap:4px;min-width:0;flex:1;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.1em;font-size:13px;color:{{ p.color }};">{{ p.label }}</span>
+            <span style="font-size:12px;color:#8A95A6;">{{ p.desc }}</span>
+          </span>
+          <span style="display:inline-flex;align-items:center;gap:6px;color:#5A6475;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:12px;flex:none;">OPEN<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg></span>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ===== POD EXPAND / SIM VIEW ===== -->
+<sc-if value="{{ showExpand }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ onExpandClose }}" style="position:fixed;inset:0;z-index:56;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(4,6,10,.8);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);animation:overlayIn .25s ease both;">
+  <div onClick="{{ stop }}" style="width:min(880px,100%);max-height:92vh;overflow:auto;background:#0C1118;border:1px solid rgba(255,255,255,.1);border-radius:22px;animation:popIn .3s ease both;">
+    <div style="display:flex;align-items:center;gap:13px;padding:18px 22px;border-bottom:1px solid rgba(255,255,255,.07);">
+      <span style="display:inline-flex;align-items:baseline;gap:9px;">
+        <span style="font-size:11px;letter-spacing:.26em;color:#6B7689;font-weight:600;">SIM POD</span>
+        <span style="font-family:'Saira Condensed';font-weight:800;font-size:30px;line-height:1;">{{ exNum }}</span>
+      </span>
+      <span style="display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:{{ exSoft }};">
+        <span style="width:8px;height:8px;border-radius:50%;background:{{ exColor }};"></span>
+        <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.1em;font-size:13px;color:{{ exColor }};">{{ exStatus }}</span>
+      </span>
+      <div style="flex:1;"></div>
+      <button onClick="{{ onExpandClose }}" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#141A24;color:#C7D0DC;cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg></button>
+    </div>
+
+    <sc-if value="{{ exInRace }}" hint-placeholder-val="{{ true }}">
+    <div style="padding:18px 18px 22px;">
+      <!-- SIM SCREEN -->
+      <div style="position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.1);">
+        <div style="position:absolute;inset:0;background:linear-gradient(#13203a 0%,#2d3f63 30%,#6a5b54 41%,#143a20 41%,#0a1f12 100%);"></div>
+        <svg viewBox="0 0 160 90" width="100%" height="100%" preserveAspectRatio="none" style="position:absolute;inset:0;">
+          <polygon points="66,37 94,37 150,90 10,90" fill="#17191e"></polygon>
+          <line x1="66" y1="37" x2="10" y2="90" stroke="#c62828" stroke-width="3.5"></line>
+          <line x1="66" y1="37" x2="10" y2="90" stroke="#f5f5f5" stroke-width="3.5" stroke-dasharray="6 6"></line>
+          <line x1="94" y1="37" x2="150" y2="90" stroke="#c62828" stroke-width="3.5"></line>
+          <line x1="94" y1="37" x2="150" y2="90" stroke="#f5f5f5" stroke-width="3.5" stroke-dasharray="6 6"></line>
+          <line x1="80" y1="40" x2="80" y2="90" stroke="#efeae0" stroke-width="2.4" stroke-dasharray="5 8" style="animation:dashMove .45s linear infinite;"></line>
+        </svg>
+        <!-- HUD top-left -->
+        <div style="position:absolute;top:12px;left:12px;display:flex;gap:8px;">
+          <div style="background:rgba(8,12,18,.66);border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:6px 11px;font-family:'Saira Condensed';font-weight:800;font-size:18px;line-height:1;color:#fff;">P{{ telePos }}<span style="font-size:11px;color:#9FB0C4;font-weight:600;">/{{ teleGrid }}</span></div>
+          <div style="background:rgba(8,12,18,.66);border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:6px 11px;font-family:'Saira Condensed';font-weight:800;font-size:14px;line-height:1.25;color:#C7D0DC;letter-spacing:.06em;">LAP {{ teleLap }}/{{ teleLaps }}</div>
+        </div>
+        <!-- HUD top-right -->
+        <div style="position:absolute;top:12px;right:12px;display:flex;flex-direction:column;align-items:flex-end;gap:5px;text-align:right;">
+          <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(225,18,51,.9);border-radius:6px;padding:4px 9px;font-family:'Saira Condensed';font-weight:800;letter-spacing:.14em;font-size:11px;color:#fff;animation:liveBlink 1.4s infinite;"><span style="width:7px;height:7px;border-radius:50%;background:#fff;"></span>LIVE</span>
+          <span style="font-family:'Saira Condensed';font-weight:700;font-size:12px;color:#E7EDF5;">{{ exCar }}</span>
+          <span style="font-size:10.5px;color:#9FB0C4;">{{ exTrack }} · {{ exLoc }}</span>
+        </div>
+        <!-- HUD bottom-left lap times -->
+        <div style="position:absolute;bottom:12px;left:12px;display:flex;flex-direction:column;gap:5px;">
+          <div style="background:rgba(8,12,18,.66);border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:5px 10px;font-family:'Saira Condensed';font-weight:700;font-size:13px;color:#fff;letter-spacing:.04em;"><span style="color:#6B7689;font-size:10px;letter-spacing:.14em;">CUR</span> {{ teleLapTime }}</div>
+          <div style="background:rgba(8,12,18,.5);border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:5px 10px;font-family:'Saira Condensed';font-weight:700;font-size:12px;color:#9FB0C4;letter-spacing:.04em;"><span style="color:#6B7689;font-size:10px;letter-spacing:.14em;">LAST</span> {{ teleLastLap }}</div>
+        </div>
+        <!-- HUD bottom-center speed -->
+        <div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:46px;line-height:.85;color:#fff;font-variant-numeric:tabular-nums;text-shadow:0 2px 12px rgba(0,0,0,.6);">{{ teleSpeed }}<span style="font-size:14px;color:#9FB0C4;font-weight:600;letter-spacing:.06em;"> KM/H</span></div>
+          <div style="display:flex;align-items:center;gap:9px;">
+            <span style="font-family:'Saira Condensed';font-weight:800;font-size:15px;letter-spacing:.06em;color:#FFB020;">GEAR {{ teleGear }}</span>
+            <span style="width:96px;height:6px;border-radius:3px;background:rgba(255,255,255,.16);overflow:hidden;"><span style="display:block;height:100%;width:{{ teleRpmPct }};background:linear-gradient(90deg,#2FD27A,#FFB020 70%,#FF3B5C);"></span></span>
+          </div>
+        </div>
+        <!-- HUD bottom-right mini map -->
+        <div style="position:absolute;bottom:12px;right:12px;width:90px;height:56px;background:rgba(8,12,18,.7);border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:7px;">
+          <svg viewBox="0 0 120 70" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+            <path d="{{ exMap }}" fill="none" stroke="{{ exRaceColor }}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"></path>
+            <circle cx="50" cy="59" r="5" fill="#fff" style="animation:liveBlink 1s infinite;"></circle>
+          </svg>
+        </div>
+        <!-- RESETTING overlay -->
+        <sc-if value="{{ resetting }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;inset:0;background:rgba(6,9,14,.8);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;backdrop-filter:blur(2px);">
+            <span style="width:42px;height:42px;border-radius:50%;border:3px solid rgba(255,176,32,.25);border-top-color:#FFB020;animation:spin .8s linear infinite;"></span>
+            <span style="font-family:'Saira Condensed';font-weight:800;letter-spacing:.14em;font-size:19px;color:#FFB020;">RESETTING CAR…</span>
+            <span style="font-size:12.5px;color:#9FB0C4;">Returning Pod {{ exNum }} to the track</span>
+          </div>
+        </sc-if>
+      </div>
+
+      <!-- ACTIONS -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:16px;">
+        <sc-if value="{{ notResetting }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ onResetCar }}" style="height:56px;border-radius:13px;border:1px solid rgba(255,176,32,.5);background:rgba(255,176,32,.1);color:#FFB020;font-family:'Saira Condensed';font-weight:800;letter-spacing:.07em;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:9px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>RESET CAR
+          </button>
+        </sc-if>
+        <sc-if value="{{ resetting }}" hint-placeholder-val="{{ false }}">
+          <button disabled="" style="height:56px;border-radius:13px;border:1px solid rgba(255,255,255,.08);background:#141A24;color:#8A95A6;font-family:'Saira Condensed';font-weight:800;letter-spacing:.07em;font-size:16px;cursor:not-allowed;display:inline-flex;align-items:center;justify-content:center;gap:9px;"><span style="width:16px;height:16px;border-radius:50%;border:2.5px solid rgba(255,255,255,.18);border-top-color:#8A95A6;animation:spin .8s linear infinite;"></span>RESETTING…</button>
+        </sc-if>
+        <button onClick="{{ onExpandManage }}" style="height:56px;border-radius:13px;border:1px solid rgba(43,166,255,.4);background:rgba(43,166,255,.1);color:#5BC0FF;font-family:'Saira Condensed';font-weight:700;letter-spacing:.07em;font-size:16px;cursor:pointer;">MANAGE IN SIM LOCK</button>
+        <button onClick="{{ onExpandClose }}" style="height:56px;border-radius:13px;border:1px solid rgba(255,255,255,.12);background:#141A24;color:#C7D0DC;font-family:'Saira Condensed';font-weight:700;letter-spacing:.07em;font-size:16px;cursor:pointer;">CLOSE</button>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ exNotRacing }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:22px 24px;display:flex;flex-direction:column;gap:16px;">
+      <div style="display:flex;align-items:center;gap:15px;padding:20px;border-radius:14px;background:#11161f;border:1px solid rgba(255,255,255,.07);">
+        <span style="display:inline-flex;width:48px;height:48px;border-radius:12px;background:rgba(107,118,137,.14);color:#9FB0C4;align-items:center;justify-content:center;flex:none;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path><path d="M4 4l16 16"></path></svg></span>
+        <div>
+          <div style="font-family:'Saira Condensed';font-weight:800;font-size:21px;line-height:1.05;">Pod not currently racing</div>
+          <div style="color:#8A95A6;font-size:13.5px;margin-top:4px;">{{ exDesc }} · the live sim view appears here once a race is in progress.</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <button onClick="{{ onExpandManage }}" style="height:54px;border-radius:13px;border:1px solid rgba(43,166,255,.4);background:rgba(43,166,255,.1);color:#5BC0FF;font-family:'Saira Condensed';font-weight:700;letter-spacing:.07em;font-size:15px;cursor:pointer;">MANAGE IN SIM LOCK</button>
+        <button onClick="{{ onExpandClose }}" style="height:54px;border-radius:13px;border:1px solid rgba(255,255,255,.12);background:#141A24;color:#C7D0DC;font-family:'Saira Condensed';font-weight:700;letter-spacing:.07em;font-size:15px;cursor:pointer;">CLOSE</button>
+      </div>
+    </div>
+    </sc-if>
+  </div>
+</div>
+</sc-if>
+
+<!-- ===== SESSION RULES (expanded) ===== -->
+<sc-if value="{{ showRules }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ onCloseRules }}" style="position:fixed;inset:0;z-index:54;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(4,6,10,.74);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:overlayIn .25s ease both;">
+  <div onClick="{{ stop }}" style="width:min(620px,100%);max-height:90vh;overflow:auto;background:#10151D;border:1px solid rgba(255,255,255,.1);border-radius:22px;animation:popIn .3s ease both;">
+    <div style="display:flex;align-items:center;gap:13px;padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.07);">
+      <span style="display:inline-flex;width:40px;height:40px;border-radius:11px;background:rgba(43,166,255,.16);color:#5BC0FF;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"></path><path d="M7 12h10"></path><path d="M10 18h4"></path></svg></span>
+      <div style="flex:1;">
+        <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;letter-spacing:.04em;">SESSION RULES</div>
+        <div style="font-size:12.5px;color:#8A95A6;">Set the driving aids for this session</div>
+      </div>
+      <button onClick="{{ onCloseRules }}" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#141A24;color:#C7D0DC;cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg></button>
+    </div>
+    <div style="padding:18px 22px 24px;display:flex;flex-direction:column;gap:18px;">
+      <sc-for list="{{ rulesRows }}" as="row" hint-placeholder-count="4">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.12em;font-size:13px;color:#C7D0DC;">{{ row.label }}</span>
+            <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.06em;font-size:13px;color:{{ row.color }};">{{ row.val }}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px;">
+            <sc-for list="{{ row.opts }}" as="o" hint-placeholder-count="3">
+              <sc-if value="{{ o.active }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ o.onPick }}" style="height:48px;border-radius:11px;cursor:pointer;border:1px solid {{ o.color }};background:rgba(43,166,255,.05);color:{{ o.color }};font-family:'Saira Condensed';font-weight:800;letter-spacing:.06em;font-size:15px;box-shadow:inset 0 0 0 1px {{ o.color }};">{{ o.v }}</button>
+              </sc-if>
+              <sc-if value="{{ o.inactive }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ o.onPick }}" style="height:48px;border-radius:11px;cursor:pointer;border:1px solid rgba(255,255,255,.1);background:#141A24;color:#9FB0C4;font-family:'Saira Condensed';font-weight:700;letter-spacing:.06em;font-size:15px;">{{ o.v }}</button>
+              </sc-if>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+      <button onClick="{{ onCloseRules }}" style="height:54px;border-radius:13px;border:0;background:linear-gradient(135deg,#2BA6FF,#1E7FE0);color:#04101D;font-family:'Saira Condensed';font-weight:800;letter-spacing:.08em;font-size:16px;cursor:pointer;box-shadow:0 8px 22px rgba(43,166,255,.3);margin-top:4px;">DONE</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ===== PC DETAIL VIEW ===== -->
+<sc-if value="{{ showDetail }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;z-index:62;background:#070A0F;overflow:auto;animation:overlayIn .25s ease both;">
+  <div style="min-height:100%;display:flex;flex-direction:column;">
+    <!-- top bar -->
+    <div style="position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:16px;padding:18px 26px;background:rgba(8,11,16,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.08);">
+      <button onClick="{{ onCloseDetail }}" style="display:inline-flex;align-items:center;gap:9px;height:46px;padding:0 18px;border-radius:11px;border:1px solid rgba(255,255,255,.12);background:#11161f;color:#C7D0DC;cursor:pointer;font-family:'Saira Condensed';font-weight:700;letter-spacing:.08em;font-size:14px;" style-hover="border-color:rgba(43,166,255,.45);color:#5BC0FF;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>BACK
+      </button>
+      <div style="display:flex;align-items:baseline;gap:11px;">
+        <span style="font-size:11px;letter-spacing:.26em;color:#6B7689;font-weight:600;">SIM POD</span>
+        <span style="font-family:'Saira Condensed';font-weight:800;font-size:34px;line-height:1;">{{ dNum }}</span>
+        <span style="font-family:'Saira Condensed';font-weight:700;font-size:15px;color:#8A95A6;letter-spacing:.04em;">{{ dHost }}</span>
+      </div>
+      <span style="display:inline-flex;align-items:center;gap:8px;padding:7px 13px;border-radius:999px;background:{{ dStatusSoft }};">
+        <span style="width:8px;height:8px;border-radius:50%;background:{{ dStatusColor }};"></span>
+        <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.12em;font-size:13px;color:{{ dStatusColor }};">{{ dStatusLabel }}</span>
+      </span>
+      <div style="flex:1;"></div>
+      <div style="display:flex;align-items:center;gap:18px;">
+        <div style="text-align:right;">
+          <div style="font-size:10px;letter-spacing:.2em;color:#6B7689;font-weight:600;">IP ADDRESS</div>
+          <div style="font-family:'Saira Condensed';font-weight:700;font-size:14px;color:#C7D0DC;font-variant-numeric:tabular-nums;">{{ dIp }}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:10px;letter-spacing:.2em;color:#6B7689;font-weight:600;">UPTIME</div>
+          <div style="font-family:'Saira Condensed';font-weight:700;font-size:14px;color:#C7D0DC;">{{ dUptime }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:1;padding:24px 26px 40px;max-width:1320px;width:100%;margin:0 auto;box-sizing:border-box;">
+      <div style="display:grid;grid-template-columns:1.55fr 1fr;gap:20px;align-items:start;">
+
+        <!-- LEFT COLUMN -->
+        <div style="display:flex;flex-direction:column;gap:20px;min-width:0;">
+          <!-- live screen / idle -->
+          <sc-if value="{{ dRacing }}" hint-placeholder-val="{{ false }}">
+          <div style="position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.1);">
+            <div style="position:absolute;inset:0;background:linear-gradient(#13203a 0%,#2d3f63 30%,#6a5b54 41%,#143a20 41%,#0a1f12 100%);"></div>
+            <svg viewBox="0 0 160 90" width="100%" height="100%" preserveAspectRatio="none" style="position:absolute;inset:0;">
+              <polygon points="66,37 94,37 150,90 10,90" fill="#17191e"></polygon>
+              <line x1="66" y1="37" x2="10" y2="90" stroke="#c62828" stroke-width="3.5"></line>
+              <line x1="66" y1="37" x2="10" y2="90" stroke="#f5f5f5" stroke-width="3.5" stroke-dasharray="6 6"></line>
+              <line x1="94" y1="37" x2="150" y2="90" stroke="#c62828" stroke-width="3.5"></line>
+              <line x1="94" y1="37" x2="150" y2="90" stroke="#f5f5f5" stroke-width="3.5" stroke-dasharray="6 6"></line>
+              <line x1="80" y1="40" x2="80" y2="90" stroke="#efeae0" stroke-width="2.4" stroke-dasharray="5 8" style="animation:dashMove .45s linear infinite;"></line>
+            </svg>
+            <span style="position:absolute;top:12px;left:12px;display:inline-flex;align-items:center;gap:6px;background:rgba(225,18,51,.9);border-radius:6px;padding:4px 10px;font-family:'Saira Condensed';font-weight:800;letter-spacing:.14em;font-size:11px;color:#fff;animation:liveBlink 1.4s infinite;"><span style="width:7px;height:7px;border-radius:50%;background:#fff;"></span>LIVE GAMEPLAY</span>
+            <span style="position:absolute;bottom:12px;left:12px;font-family:'Saira Condensed';font-weight:700;font-size:13px;color:#E7EDF5;">{{ dCar }}</span>
+            <span style="position:absolute;bottom:12px;right:12px;font-family:'Saira Condensed';font-weight:600;font-size:11px;color:#9FB0C4;">{{ dTrack }}</span>
+          </div>
+          </sc-if>
+          <sc-if value="{{ dIdle }}" hint-placeholder-val="{{ true }}">
+          <div style="aspect-ratio:16/9;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:radial-gradient(120% 120% at 50% 0%,#11161f,#0a0e14);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;">
+            <span style="display:inline-flex;width:60px;height:60px;border-radius:15px;background:rgba(107,118,137,.12);color:#9FB0C4;align-items:center;justify-content:center;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg></span>
+            <div style="text-align:center;">
+              <div style="font-family:'Saira Condensed';font-weight:800;font-size:22px;">Desktop idle</div>
+              <div style="color:#8A95A6;font-size:13px;margin-top:4px;">{{ dStatusDesc }} &middot; no live session running</div>
+            </div>
+          </div>
+          </sc-if>
+
+          <!-- realtime metrics -->
+          <div style="background:#0E1219;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px;">
+            <div style="display:flex;align-items:center;gap:10px;font-family:'Saira Condensed';font-weight:700;letter-spacing:.14em;font-size:13px;color:#C7D0DC;margin-bottom:16px;">
+              <span style="width:8px;height:8px;border-radius:50%;background:#2FD27A;animation:livePulse 1.5s infinite;"></span>REAL-TIME PERFORMANCE
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:18px;">
+              <sc-for list="{{ dStats }}" as="s" hint-placeholder-count="6">
+                <div style="background:#141A24;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:13px 15px;">
+                  <div style="font-size:10px;letter-spacing:.18em;color:#6B7689;font-weight:600;">{{ s.k }}</div>
+                  <div style="display:flex;align-items:baseline;gap:5px;margin-top:6px;">
+                    <span style="font-family:'Saira Condensed';font-weight:800;font-size:28px;line-height:1;color:{{ s.c }};font-variant-numeric:tabular-nums;">{{ s.v }}</span>
+                    <span style="font-size:11px;font-weight:600;color:#6B7689;letter-spacing:.08em;">{{ s.u }}</span>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:13px;">
+              <sc-for list="{{ perfBars }}" as="b" hint-placeholder-count="4">
+                <div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                    <span style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.1em;font-size:12px;color:#9FB0C4;">{{ b.label }}</span>
+                    <span style="font-family:'Saira Condensed';font-weight:700;font-size:13px;color:{{ b.color }};font-variant-numeric:tabular-nums;">{{ b.txt }}</span>
+                  </div>
+                  <span style="display:block;height:7px;border-radius:4px;background:rgba(255,255,255,.07);overflow:hidden;"><span style="display:block;height:100%;width:{{ b.txt }};background:{{ b.color }};transition:width .8s ease;"></span></span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- function buttons -->
+          <div style="background:#0E1219;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px;">
+            <div style="font-family:'Saira Condensed';font-weight:700;letter-spacing:.14em;font-size:13px;color:#C7D0DC;margin-bottom:15px;">REMOTE ACTIONS</div>
+            <sc-if value="{{ dShowReset }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ onDetailReset }}" style="width:100%;height:54px;border-radius:13px;border:1px solid rgba(255,176,32,.5);background:rgba(255,176,32,.1);color:#FFB020;font-family:'Saira Condensed';font-weight:800;letter-spacing:.07em;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:9px;margin-bottom:12px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>RESET CAR ON TRACK
+            </button>
+            </sc-if>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;">
+              <sc-for list="{{ dFuncList }}" as="fn" hint-placeholder-count="6">
+                <button onClick="{{ fn.onTap }}" style="{{ fn.style }}">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ fn.path }}"></path></svg>
+                  <span>{{ fn.label }}</span>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div style="display:flex;flex-direction:column;gap:20px;min-width:0;">
+          <!-- hardware -->
+          <div style="background:#0E1219;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px;">
+            <div style="display:flex;align-items:center;gap:10px;font-family:'Saira Condensed';font-weight:700;letter-spacing:.14em;font-size:13px;color:#C7D0DC;margin-bottom:14px;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5BC0FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"></path></svg>HARDWARE
+            </div>
+            <div style="display:flex;flex-direction:column;">
+              <sc-for list="{{ dHw }}" as="h" hint-placeholder-count="6">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05);">
+                  <span style="font-size:13px;color:#8A95A6;">{{ h.k }}</span>
+                  <span style="font-family:'Saira Condensed';font-weight:700;font-size:14px;color:#E7EDF5;text-align:right;">{{ h.v }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- peripherals -->
+          <div style="background:#0E1219;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px;">
+            <div style="display:flex;align-items:center;gap:10px;font-family:'Saira Condensed';font-weight:700;letter-spacing:.14em;font-size:13px;color:#C7D0DC;margin-bottom:14px;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5BC0FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="2.5"></circle><path d="M12 3v5M12 16v5M3 12h5M16 12h5"></path></svg>SIM RIG
+            </div>
+            <div style="display:flex;flex-direction:column;">
+              <sc-for list="{{ dPeriph }}" as="h" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05);">
+                  <span style="font-size:13px;color:#8A95A6;">{{ h.k }}</span>
+                  <span style="font-family:'Saira Condensed';font-weight:700;font-size:14px;color:#E7EDF5;text-align:right;">{{ h.v }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- game settings -->
+          <div style="background:#0E1219;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px;">
+            <div style="display:flex;align-items:center;gap:10px;font-family:'Saira Condensed';font-weight:700;letter-spacing:.14em;font-size:13px;color:#C7D0DC;margin-bottom:14px;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#FFB020" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11h4M8 9v4"></path><circle cx="16" cy="10" r="1"></circle><circle cx="18.5" cy="13" r="1"></circle><path d="M3.5 16l1.6-7.2A3 3 0 0 1 8 6.5h8a3 3 0 0 1 2.9 2.3L20.5 16a2 2 0 0 1-3.7 1.3L15 15H9l-1.8 2.3A2 2 0 0 1 3.5 16Z"></path></svg>GAME SETTINGS
+            </div>
+            <div style="display:flex;flex-direction:column;">
+              <sc-for list="{{ dGame }}" as="h" hint-placeholder-count="8">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05);">
+                  <span style="font-size:13px;color:#8A95A6;">{{ h.k }}</span>
+                  <span style="font-family:'Saira Condensed';font-weight:700;font-size:14px;color:#E7EDF5;text-align:right;">{{ h.v }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ===== TOAST ===== -->
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:11px;padding:14px 22px;background:#11151C;border:1px solid rgba(43,166,255,.3);border-radius:14px;box-shadow:0 14px 44px rgba(0,0,0,.55);animation:toastIn .3s ease both;">
+  <span style="width:9px;height:9px;border-radius:50%;background:#2BA6FF;"></span>
+  <span style="font-size:14.5px;color:#F2F5F9;font-weight:500;">{{ toast }}</span>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:880},&quot;centreName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;RACEWERX&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;podCount&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:8,&quot;min&quot;:2,&quot;max&quot;:16,&quot;tsType&quot;:&quot;number&quot;},&quot;tillRequired&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    const n = Math.max(2, Math.min(16, (props && props.podCount) || 8));
+    const seed = ['unlocked','unlocked','inrace','inrace','locked','locked','ready','offline'];
+    this.state = {
+      screen:'home', modal:null, pkg:null, race:null, sel:[], toast:null, clock:'--:--:--',
+      lobbyStep:0, joined:0, lobbyReady:false,
+      aids:{ drive:'NORMAL', gear:'AUTOMATIC', brake:'OFF', steer:'OFF' },
+      expandPod:null, tele:null, resetting:false, statGroup:null,
+      detailPod:null, perf:null,
+      view:'list', rulesOpen:false, selRaces:[], buildSel:[], presel:[],
+      printOpen:false, printOpts:{receipt:true, session:false, podStatus:false, takings:false},
+      pods: Array.from({length:n}, (_,i)=>({ id:i+1, status: seed[i % seed.length] }))
+    };
+    this._t=null; this._toastT=null; this._lobT=[]; this._teleT=null; this._resetT=null;
+  }
+  componentDidMount(){
+    const tick=()=>{ const d=new Date(); const p=x=>String(x).padStart(2,'0'); this.setState({clock:p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds())}); };
+    tick(); this._t=setInterval(tick,1000);
+  }
+  componentDidUpdate(prev){
+    if(prev && prev.podCount!==this.props.podCount){
+      const n=Math.max(2,Math.min(16,this.props.podCount||8));
+      const seed=['unlocked','unlocked','inrace','inrace','locked','locked','ready','offline'];
+      this.setState({pods:Array.from({length:n},(_,i)=>({id:i+1,status:seed[i%seed.length]})), sel:[]});
+    }
+  }
+  componentWillUnmount(){ clearInterval(this._t); clearTimeout(this._toastT); clearInterval(this._teleT); clearTimeout(this._resetT); clearInterval(this._perfT); this.clearLobby(); }
+  meta(status){
+    const M={
+      locked:{label:'LOCKED',color:'#FF3B5C',soft:'rgba(255,59,92,.13)',desc:'Pod secured'},
+      unlocked:{label:'UNLOCKED',color:'#2BA6FF',soft:'rgba(43,166,255,.14)',desc:'Open for customer use'},
+      inrace:{label:'IN RACE',color:'#2FD27A',soft:'rgba(47,210,122,.14)',desc:'Session live now',live:true},
+      ready:{label:'READY',color:'#FFB020',soft:'rgba(255,176,32,.14)',desc:'Entered \u2013 ready to start'},
+      offline:{label:'OFFLINE',color:'#6B7689',soft:'rgba(107,118,137,.12)',desc:'Not connected'}
+    };
+    return M[status]||M.offline;
+  }
+  go(screen){ if(this.state.screen==='lobby'){ this.clearLobby(); } const extra = screen==='home' ? {presel:[], buildSel:[]} : {}; this.setState(Object.assign({screen}, extra)); }
+  toggleBuild(id){
+    this.setState(s=>{
+      const inB = s.buildSel.includes(id);
+      return { buildSel: inB ? s.buildSel.filter(x=>x!==id) : s.buildSel.concat(id).sort((a,b)=>a-b) };
+    });
+  }
+  startBuildRace(auto){
+    const sel=this.state.buildSel.slice();
+    if(!sel.length) return;
+    this.setState({sel:sel, presel:sel, buildSel:[], screen:'raceSetup'});
+    this.toast((auto?'All unlocked pods added \u2013 ':'')+sel.length+' pod'+(sel.length>1?'s':'')+' ready \u2013 choose a package');
+  }
+  clearBuild(){ this.setState({buildSel:[]}); this.toast('Race build cleared'); }
+  toast(msg){ clearTimeout(this._toastT); this.setState({toast:msg}); this._toastT=setTimeout(()=>this.setState({toast:null}),2600); }
+  setStatus(id,status){ this.setState(s=>({pods:s.pods.map(p=>p.id===id?Object.assign({},p,{status}):p)})); }
+  lockPod(id){ this.setStatus(id,'locked'); }
+  unlockPod(id){ this.setStatus(id,'unlocked'); }
+  lockAll(){ this.setState(s=>({pods:s.pods.map(p=>(p.status==='offline'||p.status==='inrace')?p:Object.assign({},p,{status:'locked'}))})); this.toast('All available pods locked'); }
+  openUnlock(){ this.setState({modal:'unlockConfirm'}); }
+  confirmUnlock(){ if(this.props && this.props.tillRequired===false){ this.doUnlockAll(); this.setState({modal:'unlockSuccess'}); } else { this.setState({modal:'till'}); } }
+  doUnlockAll(){ this.setState(s=>({pods:s.pods.map(p=>p.status==='offline'?p:Object.assign({},p,{status:'unlocked'}))})); }
+  confirmPayment(){ this.doUnlockAll(); this.setState({modal:'unlockSuccess'}); }
+  closeModal(){ this.setState({modal:null}); }
+  selectPackage(key){ this.setState(s=>({pkg:key, race:null, sel:(s.presel&&s.presel.length?s.presel.slice():[]), selRaces:[], screen:'raceSelect'})); }
+  selectRace(key){ this.setState(s=>({race:key, sel:(s.presel&&s.presel.length?s.presel.slice():[]), screen:'pods'})); }
+  toggleRace(key){ this.setState(s=>({selRaces: s.selRaces.includes(key)? s.selRaces.filter(x=>x!==key) : s.selRaces.concat(key) })); }
+  racesContinue(){ if(!this.state.selRaces.length) return; this.setState(s=>({race:s.selRaces[0], sel:(s.presel&&s.presel.length?s.presel.slice():[]), screen:'pods'})); }
+  printReceipt(){ this.setState({printOpen:true}); }
+  closePrint(){ this.setState({printOpen:false}); }
+  togglePrintOpt(key){ this.setState(s=>({printOpts:Object.assign({},s.printOpts,{[key]:!s.printOpts[key]})})); }
+  confirmPrint(){ const o=this.state.printOpts; const n=Object.keys(o).filter(k=>o[k]).length; if(!n){ this.toast('Select at least one document to print'); return; } this.setState({printOpen:false}); this.toast(n+' document'+(n>1?'s':'')+' sent to the printer'); }
+  jumpToPods(){ this.setState({view:'map', statGroup:null}); setTimeout(()=>{ try{ const el=document.querySelector('[data-pod-section]'); if(el){ const y=el.getBoundingClientRect().top+window.pageYOffset-16; window.scrollTo({top:y,behavior:'smooth'}); } }catch(e){} },70); }
+  comboSelect(idx){ const C=[['r1','r2'],['r2','r3'],['r1','r2','r3']]; const AIDS=[{drive:'NORMAL',gear:'AUTOMATIC',brake:'LOW',steer:'ON'},{drive:'NORMAL',gear:'MANUAL',brake:'OFF',steer:'OFF'},{drive:'OFF',gear:'SEQUENTIAL',brake:'OFF',steer:'OFF'}]; this.setState({selRaces:C[idx].slice(), aids:AIDS[idx]}); this.toast('Combo '+(idx+1)+' loaded \u2013 '+C[idx].length+' races'); }
+  setView(v){ this.setState({view:v}); }
+  openRules(){ this.setState({rulesOpen:true}); }
+  closeRules(){ this.setState({rulesOpen:false}); }
+  setAid(key,val){ const LBL={drive:'Driving aids',gear:'Gearbox',brake:'Braking assist',steer:'Steering assist'}; this.setState(s=>({aids:Object.assign({},s.aids,{[key]:val})})); this.toast(LBL[key]+' \u2192 '+val); }
+  toggleSel(id){ this.setState(s=>({sel: s.sel.includes(id)? s.sel.filter(x=>x!==id) : s.sel.concat(id).sort((a,b)=>a-b) })); }
+  submitRace(){ if(!this.state.sel.length) return; this.setState(s=>({pods:s.pods.map(p=>s.sel.includes(p.id)?Object.assign({},p,{status:'ready'}):p)})); this.enterLobby(); }
+  clearLobby(){ (this._lobT||[]).forEach(t=>{clearTimeout(t);clearInterval(t);}); this._lobT=[]; }
+  enterLobby(){
+    this.clearLobby();
+    const total=this.state.sel.length;
+    this.setState({screen:'lobby', lobbyStep:0, joined:0, lobbyReady:false});
+    this._lobT.push(setTimeout(()=>{
+      this.setState({lobbyStep:1});
+      let i=0;
+      const iv=setInterval(()=>{
+        i++; this.setState({joined:i});
+        if(i>=total){
+          clearInterval(iv);
+          this._lobT.push(setTimeout(()=>{
+            this.setState({lobbyStep:2});
+            this._lobT.push(setTimeout(()=>this.setState({lobbyStep:3, lobbyReady:true}),1100));
+          },520));
+        }
+      },460);
+      this._lobT.push(iv);
+    },1200));
+  }
+  proceedGrid(){ this.clearLobby(); this.setState({screen:'raceReady'}); }
+  startRace(){ this.setState(s=>({pods:s.pods.map(p=>s.sel.includes(p.id)?Object.assign({},p,{status:'inrace'}):p), screen:'home', pkg:null, sel:[], presel:[], buildSel:[]})); this.toast('Race started \u2013 good luck out there'); }
+  editPods(){ this.setState({screen:'pods'}); }
+  cancelSetup(){ this.clearLobby(); this.setState(s=>({pkg:null, race:null, sel:[], selRaces:[], pods:s.pods.map(p=>(s.sel.includes(p.id)&&p.status==='ready')?Object.assign({},p,{status:'unlocked'}):p), screen:'home', presel:[], buildSel:[]})); this.toast('Race setup cancelled'); }
+  cycleAid(key){
+    const OPTS={drive:['OFF','NORMAL','FULL'],gear:['AUTOMATIC','MANUAL','SEQUENTIAL'],brake:['OFF','LOW','HIGH'],steer:['OFF','ON']};
+    const LBL={drive:'Driving aids',gear:'Gearbox',brake:'Braking assist',steer:'Steering assist'};
+    const o=OPTS[key]; const nv=o[(o.indexOf(this.state.aids[key])+1)%o.length];
+    this.setState(s=>({aids:Object.assign({},s.aids,{[key]:nv})}));
+    this.toast(LBL[key]+' \u2192 '+nv);
+  }
+  openStat(group){ this.setState({statGroup:group}); }
+  closeStat(){ this.setState({statGroup:null}); }
+  openExpand(id){
+    const pod=this.state.pods.find(p=>p.id===id); if(!pod) return;
+    clearInterval(this._teleT);
+    if(pod.status==='inrace'){
+      const grid=this.state.pods.filter(p=>p.status==='inrace').length||6;
+      this.setState({expandPod:id, statGroup:null, resetting:false, tele:{speed:208,gear:5,rpm:0.72,lap:2,laps:3,pos:((id%grid)+1),grid:grid,lapTime:'01:24.6',lastLap:'01:26.1'}});
+      this._teleT=setInterval(()=>{
+        this.setState(s=>{ if(!s.tele) return null; const sp=Math.max(72,Math.round(150+Math.random()*98)); const g=Math.max(2,Math.min(6,Math.round(sp/40))); return {tele:Object.assign({},s.tele,{speed:sp,gear:g,rpm:0.42+Math.random()*0.52})}; });
+      },650);
+    } else {
+      this.setState({expandPod:id, statGroup:null, resetting:false, tele:null});
+    }
+  }
+  closeExpand(){ clearInterval(this._teleT); this.setState({expandPod:null, resetting:false, tele:null}); }
+  podSpec(id){
+    const pick=(arr)=>arr[(id-1)%arr.length];
+    return {
+      host:'RW-SIM-'+String(id).padStart(2,'0'),
+      cpu:pick(['Intel Core i7-13700K','Intel Core i9-13900K','AMD Ryzen 7 7800X3D']),
+      gpu:pick(['NVIDIA RTX 4070 Ti','NVIDIA RTX 4080 SUPER','NVIDIA RTX 4090']),
+      ram:'32 GB DDR5-6000',
+      storage:'2 TB NVMe Gen4 SSD',
+      mobo:pick(['ASUS ROG STRIX Z790','MSI MAG B650','Gigabyte AORUS Z790']),
+      os:'Windows 11 Pro 23H2',
+      wheel:pick(['Fanatec CSL DD 8Nm','Fanatec ClubSport DD+','Logitech G PRO','Thrustmaster T818']),
+      pedals:pick(['Fanatec CSL LC','Heusinkveld Sprint','Logitech G PRO']),
+      rig:pick(['Next Level GTtrack','Sim-Lab GT1 PRO','Playseat Trophy']),
+      disp:pick(['49\u2033 Samsung G9 240Hz','Triple 27\u2033 165Hz','42\u2033 LG OLED 120Hz']),
+      res:pick(['5120 \u00d7 1440','3840 \u00d7 2160','2560 \u00d7 1440 \u00d73']),
+      ip:'10.0.1.'+(20+id),
+      build:'PCARS2 v7.3.0',
+      uptimeH:(2+((id*7)%9)), uptimeM:((id*13)%60)
+    };
+  }
+  genPerf(id, racing){
+    const r=()=>Math.random();
+    return {
+      fps: racing ? 132+Math.round(r()*36) : 60,
+      cpuTemp: Math.round((racing?61:37)+r()*13),
+      gpuTemp: Math.round((racing?67:42)+r()*15),
+      cpu: Math.round((racing?42:7)+r()*24),
+      gpu: Math.round((racing?70:4)+r()*24),
+      ram: Math.round((racing?56:33)+r()*11),
+      vram: Math.round((racing?64:28)+r()*12),
+      frame: ((racing?6.6:16.2)+r()*2.2).toFixed(1),
+      ping: Math.round((racing?11:8)+r()*9),
+      net: (racing?2.4:0.3+r()*0.5).toFixed(1)
+    };
+  }
+  openDetail(id){
+    const pod=this.state.pods.find(p=>p.id===id);
+    const racing=pod.status==='inrace';
+    clearInterval(this._perfT);
+    this.setState({detailPod:id, perf:this.genPerf(id,racing)});
+    this._perfT=setInterval(()=>{
+      this.setState(s=>{ if(s.detailPod==null) return null; const p=s.pods.find(x=>x.id===s.detailPod); return {perf:this.genPerf(s.detailPod, p && p.status==='inrace')}; });
+    },1200);
+  }
+  closeDetail(){ clearInterval(this._perfT); this.setState({detailPod:null}); }
+  resetCar(id){
+    if(this.state.resetting) return;
+    clearTimeout(this._resetT);
+    this.setState({resetting:true});
+    this._resetT=setTimeout(()=>{ this.setState({resetting:false}); this.toast('Pod '+String(id).padStart(2,'0')+' \u2013 car reset to track'); },1500);
+  }
+  renderVals(){
+    const S=this.state;
+    const PK={ x3:'x3 Race Session', x5:'x4 Race Session', gold:'Open Gold Package', plat:'Open Platinum Package', silver:'Open Silver Package', bronze:'Open Bronze Package', voucher:'Voucher Booking', min30:'30 Minute Package', min60:'60 Minute Package', custom:'Custom Combo', min30:'30 Minute Package', min60:'60 Minute Package' };
+    const TRK=['Silverstone Classic','Monza Classic','N\u00FCrburgring'];
+    const dec=S.pods.map(p=>{
+      const m=this.meta(p.status);
+      const selectable = p.status!=='offline' && p.status!=='inrace';
+      const isSel = S.sel.includes(p.id);
+      const canBuild = p.status==='unlocked';
+      const inBuild = S.buildSel.includes(p.id);
+      return {
+        id:p.id, num:String(p.id).padStart(2,'0'),
+        label:m.label, color:m.color, soft:m.soft, desc:m.desc, track:TRK[(p.id-1)%3],
+        live:!!m.live, notLive:!m.live,
+        actionable: p.status==='locked'||p.status==='unlocked'||p.status==='ready',
+        inrace: p.status==='inrace', offline: p.status==='offline',
+        selectable, unselectable:!selectable,
+        isSelected:isSel, notSelected: selectable && !isSel,
+        canBuild, inBuild, notInBuild: canBuild && !inBuild,
+        onBuildToggle:()=>this.toggleBuild(p.id),
+        onLock:()=>this.lockPod(p.id), onUnlock:()=>this.unlockPod(p.id),
+        onSelect:()=>this.toggleSel(p.id), goSim:()=>this.go('simlock'),
+        onExpand:()=>this.openExpand(p.id), onReset:()=>this.resetCar(p.id), onDetail:()=>this.openDetail(p.id)
+      };
+    });
+    const c=st=>S.pods.filter(p=>p.status===st).length;
+    const counts={ total:S.pods.length, online:S.pods.filter(p=>p.status!=='offline').length, inRace:c('inrace'), inrace:c('inrace'), locked:c('locked'), ready:c('ready'), unlocked:c('unlocked') };
+    const unlockCount=S.pods.filter(p=>p.status!=='offline').length;
+    const price=15;
+    const backMap={ simlock:'home', raceSetup:'home', raceSelect:'home', pods:'raceSelect', lobby:'pods', raceReady:'pods' };
+    const RACES={
+      r1:{key:'r1',n:'01',car:'McLaren 650S GT3',cls:'GT3',track:'Silverstone Classic',loc:'England',len:'5.90 km',turns:'18 turns',color:'#FF8A3D',map:'M14,44 L22,28 L36,24 L43,33 L60,28 L66,17 L88,16 L106,27 L99,41 L82,45 L74,57 L50,59 L33,55 L19,52 Z'},
+      r2:{key:'r2',n:'02',car:'Formula X',cls:'OPEN WHEEL',track:'Monza Classic',loc:'Italy',len:'5.79 km',turns:'11 turns',color:'#2BA6FF',map:'M16,21 L98,15 L110,28 L101,41 L60,43 L67,56 L40,58 L22,51 L31,38 L18,33 Z'},
+      r3:{key:'r3',n:'03',car:'Formula X',cls:'OPEN WHEEL',track:'N\u00FCrburgring',loc:'Germany',len:'5.15 km',turns:'15 turns',color:'#2FD27A',map:'M14,40 C14,23 31,17 45,24 C57,30 52,43 67,45 C84,47 85,25 99,23 C114,21 111,47 92,53 C71,59 49,55 33,55 C19,55 14,50 14,40 Z'}
+    };
+    const raceList=Object.keys(RACES).map(k=>Object.assign({},RACES[k],{onSelect:()=>this.toggleRace(k), isSelected:S.selRaces.includes(k), notSelected:!S.selRaces.includes(k), order:S.selRaces.indexOf(k)+1}));
+    const race=S.race?RACES[S.race]:null;
+    const aidColor=v=>({OFF:'#FF6B82',ON:'#2FD27A',FULL:'#2FD27A',HIGH:'#2FD27A',NORMAL:'#FFB020',LOW:'#FFB020',AUTOMATIC:'#5BC0FF',MANUAL:'#FFB020',SEQUENTIAL:'#2FD27A'}[v]||'#9FB0C4');
+    const AIDLBL={drive:'DRIVING AIDS',gear:'GEARBOX',brake:'BRAKING ASSIST',steer:'STEERING ASSIST'};
+    const A=S.aids;
+    const aidChips=['drive','gear','brake','steer'].map(k=>({key:k,label:AIDLBL[k],val:A[k],color:aidColor(A[k]),onCycle:()=>this.cycleAid(k)}));
+    const isMap=S.view==='map';
+    const leftCount=Math.round(dec.length*3/5);
+    const leftPods=dec.slice(0,leftCount);
+    const rightPods=dec.slice(leftCount);
+    const _baseTog="display:inline-flex;align-items:center;justify-content:center;height:34px;padding:0 16px;border-radius:8px;border:0;cursor:pointer;font-family:'Saira Condensed';font-weight:700;letter-spacing:.1em;font-size:12px;";
+    const listBtnStyle=isMap?(_baseTog+"background:transparent;color:#7A8497;"):(_baseTog+"background:#1E2632;color:#F2F5F9;");
+    const mapBtnStyle=isMap?(_baseTog+"background:#1E2632;color:#F2F5F9;"):(_baseTog+"background:transparent;color:#7A8497;");
+    const RULEOPTS={drive:['OFF','NORMAL','FULL'],gear:['AUTOMATIC','MANUAL','SEQUENTIAL'],brake:['OFF','LOW','HIGH'],steer:['OFF','ON']};
+    const rulesRows=['drive','gear','brake','steer'].map(k=>({key:k,label:AIDLBL[k],val:A[k],color:aidColor(A[k]),opts:RULEOPTS[k].map(v=>({v,active:A[k]===v,inactive:A[k]!==v,color:aidColor(v),onPick:()=>this.setAid(k,v)}))}));
+    const exPod=S.expandPod!=null?S.pods.find(p=>p.id===S.expandPod):null;
+    const exMeta=exPod?this.meta(exPod.status):null;
+    const exRace=exPod?RACES[['r1','r2','r3'][(exPod.id-1)%3]]:null;
+    const T=S.tele;
+    const STATDEF={ online:{title:'PODS ONLINE',test:p=>p.status!=='offline'}, inrace:{title:'PODS IN RACE',test:p=>p.status==='inrace'}, ready:{title:'PODS READY',test:p=>p.status==='ready'}, locked:{title:'PODS LOCKED',test:p=>p.status==='locked'} };
+    const statDef=S.statGroup?STATDEF[S.statGroup]:null;
+    const statList=statDef?dec.filter(d=>statDef.test(S.pods.find(p=>p.id===d.id))).map(d=>Object.assign({},d,{onOpen:()=>this.openExpand(d.id)})):[];
+    const lobbyTotal=S.sel.length;
+    const lobbySteps=[
+      {title:'Main lobby created',sub:'Race settings applied to the host',done:S.lobbyStep>=1,active:S.lobbyStep===0},
+      {title:'Pods joining session',sub:S.joined+' of '+lobbyTotal+' pods connected',done:S.lobbyStep>=2,active:S.lobbyStep===1},
+      {title:'Session synchronised',sub:'All drivers ready on the grid',done:S.lobbyStep>=3,active:S.lobbyStep===2}
+    ].map((st,i)=>Object.assign({},st,{idx:String(i+1),subTxt:st.sub,stDone:st.done,stActive:st.active&&!st.done,stPend:!st.done&&!st.active}));
+    const joinChips=S.sel.map((id,idx)=>({num:String(id).padStart(2,'0'),on:idx<S.joined,off:!(idx<S.joined)}));
+    const dPod=S.detailPod!=null?S.pods.find(p=>p.id===S.detailPod):null;
+    const dMeta=dPod?this.meta(dPod.status):null;
+    const dSpec=dPod?this.podSpec(dPod.id):null;
+    const dRacing=dPod?dPod.status==='inrace':false;
+    const dTrack=dPod?TRK[(dPod.id-1)%3]:'';
+    const dRace=dPod?RACES[['r1','r2','r3'][(dPod.id-1)%3]]:null;
+    const dCar=dRace?dRace.car:'';
+    const P=S.perf;
+    const barColor=(v)=>v>85?'#FF3B5C':(v>65?'#FFB020':'#2FD27A');
+    const tempColor=(v)=>v>80?'#FF3B5C':(v>68?'#FFB020':'#2FD27A');
+    const perfBars=P?[
+      {label:'CPU LOAD', val:P.cpu, txt:P.cpu+'%', color:barColor(P.cpu)},
+      {label:'GPU LOAD', val:P.gpu, txt:P.gpu+'%', color:barColor(P.gpu)},
+      {label:'MEMORY', val:P.ram, txt:P.ram+'%', color:barColor(P.ram)},
+      {label:'VRAM', val:P.vram, txt:P.vram+'%', color:barColor(P.vram)}
+    ]:[];
+    const dStats=P?[
+      {k:'FRAME RATE', v:P.fps, u:'FPS', c:P.fps>=120?'#2FD27A':(P.fps>=60?'#FFB020':'#FF3B5C')},
+      {k:'FRAME TIME', v:P.frame, u:'MS', c:'#5BC0FF'},
+      {k:'CPU TEMP', v:P.cpuTemp, u:'\u00b0C', c:tempColor(P.cpuTemp)},
+      {k:'GPU TEMP', v:P.gpuTemp, u:'\u00b0C', c:tempColor(P.gpuTemp)},
+      {k:'NETWORK', v:P.ping, u:'MS', c:P.ping<25?'#2FD27A':'#FFB020'},
+      {k:'THROUGHPUT', v:P.net, u:'MB/S', c:'#9FB0C4'}
+    ]:[];
+    const dHw=dSpec?[
+      {k:'Processor', v:dSpec.cpu},
+      {k:'Graphics', v:dSpec.gpu},
+      {k:'Memory', v:dSpec.ram},
+      {k:'Storage', v:dSpec.storage},
+      {k:'Motherboard', v:dSpec.mobo},
+      {k:'Operating System', v:dSpec.os}
+    ]:[];
+    const dPeriph=dSpec?[
+      {k:'Wheelbase', v:dSpec.wheel},
+      {k:'Pedals', v:dSpec.pedals},
+      {k:'Cockpit', v:dSpec.rig},
+      {k:'Display', v:dSpec.disp}
+    ]:[];
+    const dGame=dPod?[
+      {k:'Title', v:'Project CARS 2'},
+      {k:'Build', v:dSpec.build},
+      {k:'Resolution', v:dSpec.res},
+      {k:'Graphics Preset', v:'Ultra'},
+      {k:'Driving Line', v:A.steer==='ON'?'On':'Off'},
+      {k:'Gearbox', v:A.gear.charAt(0)+A.gear.slice(1).toLowerCase()},
+      {k:'Braking Assist', v:A.brake==='OFF'?'Off':A.brake.charAt(0)+A.brake.slice(1).toLowerCase()},
+      {k:'Stability Control', v:A.drive==='OFF'?'Off':A.drive.charAt(0)+A.drive.slice(1).toLowerCase()}
+    ]:[];
+    const dFuncs=dPod?[
+      {key:'launch', label:dRacing?'Restart Game':'Launch Game', tone:'blue', icon:'play', onTap:()=>this.toast((dRacing?'Restarting':'Launching')+' Project CARS 2 on Pod '+dPod.id)},
+      {key:'remote', label:'Remote Desktop', tone:'plain', icon:'screen', onTap:()=>this.toast('Connecting to Pod '+dPod.id+' via remote desktop…')},
+      {key:'message', label:'Send Message', tone:'plain', icon:'msg', onTap:()=>this.toast('Message dialog opened for Pod '+dPod.id)},
+      {key:'restart', label:'Restart PC', tone:'amber', icon:'power', onTap:()=>this.toast('Pod '+dPod.id+' is restarting…')},
+      {key:'lock', label:dPod.status==='locked'?'Unlock Pod':'Lock Pod', tone:dPod.status==='locked'?'blue':'red', icon:'lock', onTap:()=>{ if(dPod.status==='locked'){ this.unlockPod(dPod.id); this.toast('Pod '+dPod.id+' unlocked'); } else { this.lockPod(dPod.id); this.toast('Pod '+dPod.id+' locked'); } }},
+      {key:'power', label:'Power Off', tone:'red', icon:'off', onTap:()=>this.toast('Pod '+dPod.id+' powering down…')}
+    ]:[];
+    const FNICON={
+      play:'M8 5v14l11-7z',
+      screen:'M3 4h18v12H3zM8 20h8M12 16v4',
+      msg:'M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5z',
+      power:'M12 2v10M18.4 6.6a9 9 0 1 1-12.8 0',
+      lock:'M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4',
+      off:'M12 2v10M18.4 6.6a9 9 0 1 1-12.8 0'
+    };
+    const dFuncList=dFuncs.map(f=>{
+      const tones={blue:{bd:'rgba(43,166,255,.4)',bg:'rgba(43,166,255,.1)',fg:'#5BC0FF'},red:{bd:'rgba(255,59,92,.4)',bg:'rgba(255,59,92,.09)',fg:'#FF6B82'},amber:{bd:'rgba(255,176,32,.4)',bg:'rgba(255,176,32,.09)',fg:'#FFB020'},plain:{bd:'rgba(255,255,255,.12)',bg:'#141A24',fg:'#C7D0DC'}};
+      const t=tones[f.tone]||tones.plain;
+      return Object.assign({},f,{path:FNICON[f.icon],style:'display:flex;flex-direction:column;align-items:flex-start;gap:10px;height:84px;padding:14px 16px;border-radius:13px;cursor:pointer;text-align:left;border:1px solid '+t.bd+';background:'+t.bg+';color:'+t.fg+';font-family:\'Saira Condensed\';font-weight:700;letter-spacing:.05em;font-size:15px;'});
+    });
+    const dResetEnabled=dRacing&&!S.resetting;
+    return {
+      centreName:(this.props&&this.props.centreName)||'RACEWERX',
+      clock:S.clock,
+      isHome:S.screen==='home', isSimlock:S.screen==='simlock', isRaceSetup:S.screen==='raceSetup',
+      isPods:S.screen==='pods', isRaceReady:S.screen==='raceReady', isRaceSelect:S.screen==='raceSelect', isLobby:S.screen==='lobby',
+      onBack:()=>this.go(backMap[S.screen]||'home'),
+      pods:dec, counts,
+      pkgName: S.pkg?PK[S.pkg]:'', selLabel:S.sel.join(', '), selCount:S.sel.length,
+      raceList, hasRace:!!race, raceSelCount:S.selRaces.length, hasRaceSel:S.selRaces.length>0, noRaceSel:S.selRaces.length===0, onRacesContinue:()=>this.racesContinue(),
+      raceCar:race?race.car:'', raceTrack:race?race.track:'', raceN:race?race.n:'', raceCls:race?race.cls:'', raceColor:race?race.color:'#2BA6FF', raceLoc:race?race.loc:'', raceLen:race?race.len:'', raceTurns:race?race.turns:'',
+      lobbySteps, joinChips, lobbyReady:S.lobbyReady, lobbyWorking:!S.lobbyReady, lobbyJoined:S.joined, lobbyTotal,
+      onProceed:()=>this.proceedGrid(),
+      hasSel:S.sel.length>0, noSel:S.sel.length===0,
+      showModal:S.modal!==null, mUnlockConfirm:S.modal==='unlockConfirm', mTill:S.modal==='till', mSuccess:S.modal==='unlockSuccess',
+      unlockCount, total:'£'+(unlockCount*price)+'.00', perPrice:'£'+price+'.00',
+      toast:S.toast, hasToast:S.toast!==null,
+      aidChips,
+      aidDrive:A.drive, aidDriveColor:aidColor(A.drive),
+      aidGear:A.gear, aidGearColor:aidColor(A.gear),
+      aidBrake:A.brake, aidBrakeColor:aidColor(A.brake),
+      aidSteer:A.steer, aidSteerColor:aidColor(A.steer),
+      onCycleDrive:()=>this.cycleAid('drive'), onCycleGear:()=>this.cycleAid('gear'), onCycleBrake:()=>this.cycleAid('brake'), onCycleSteer:()=>this.cycleAid('steer'),
+      onStatOnline:()=>this.jumpToPods(), onStatInrace:()=>this.jumpToPods(), onStatReady:()=>this.jumpToPods(), onStatLocked:()=>this.jumpToPods(),
+      showStat:statDef!=null, statTitle:statDef?statDef.title:'', statList, statCount:statList.length, statEmpty:statList.length===0, onStatClose:()=>this.closeStat(),
+      showExpand:exPod!=null,
+      showDetail:dPod!=null, dNum:dPod?String(dPod.id).padStart(2,'0'):'', dHost:dSpec?dSpec.host:'', dIp:dSpec?dSpec.ip:'',
+      dStatusLabel:dMeta?dMeta.label:'', dStatusColor:dMeta?dMeta.color:'#8A95A6', dStatusSoft:dMeta?dMeta.soft:'rgba(255,255,255,.06)', dStatusDesc:dMeta?dMeta.desc:'',
+      dRacing:dRacing, dIdle:!dRacing, dTrack:dTrack, dCar:dCar, dUptime:dSpec?(dSpec.uptimeH+'h '+dSpec.uptimeM+'m'):'',
+      dStats, perfBars, dHw, dPeriph, dGame, dFuncList,
+      dShowReset:dRacing, dResetEnabled, dResetDisabled:!dResetEnabled,
+      onCloseDetail:()=>this.closeDetail(), onDetailReset:()=>{ if(dPod) this.resetCar(dPod.id); },
+      exNum:exPod?String(exPod.id).padStart(2,'0'):'',
+      exStatus:exMeta?exMeta.label:'', exColor:exMeta?exMeta.color:'#8A95A6', exSoft:exMeta?exMeta.soft:'rgba(255,255,255,.06)', exDesc:exMeta?exMeta.desc:'',
+      exInRace:!!(exPod&&exPod.status==='inrace'), exNotRacing:!!(exPod&&exPod.status!=='inrace'),
+      exCar:exRace?exRace.car:'', exTrack:exRace?exRace.track:'', exLoc:exRace?exRace.loc:'', exCls:exRace?exRace.cls:'', exMap:exRace?exRace.map:'', exRaceColor:exRace?exRace.color:'#2BA6FF',
+      teleSpeed:T?T.speed:0, teleGear:T?T.gear:0, teleRpmPct:T?(Math.round(T.rpm*100)+'%'):'0%', teleLap:T?T.lap:0, teleLaps:T?T.laps:0, telePos:T?T.pos:0, teleGrid:T?T.grid:0, teleLapTime:T?T.lapTime:'--:--', teleLastLap:T?T.lastLap:'--:--',
+      resetting:S.resetting, notResetting:!S.resetting,
+      onExpandClose:()=>this.closeExpand(), onResetCar:()=>this.resetCar(exPod?exPod.id:0), onExpandManage:()=>{ this.closeExpand(); this.go('simlock'); },
+      onSimLock:()=>this.go('simlock'), onRaceSetup:()=>this.go('raceSetup'),
+      onPrintReceipt:()=>this.printReceipt(),
+      showPrint:S.printOpen, onClosePrint:()=>this.closePrint(), onConfirmPrint:()=>this.confirmPrint(),
+      printRows:[
+        {key:'receipt',label:'Customer receipt',sub:'Itemised payment receipt',on:S.printOpts.receipt},
+        {key:'session',label:'Session summary',sub:'Package, races & driving aids',on:S.printOpts.session},
+        {key:'podStatus',label:'Pod status report',sub:'Live state of every pod',on:S.printOpts.podStatus},
+        {key:'takings',label:'Daily takings',sub:'Running total for the day',on:S.printOpts.takings}
+      ].map(r=>Object.assign({},r,{off:!r.on,onToggle:()=>this.togglePrintOpt(r.key)})),
+      combos:[{n:'1',label:'Rookie Combo',desc:'Silverstone + Monza',onPick:()=>this.comboSelect(0)},{n:'2',label:'Sport Combo',desc:'Monza + N\u00FCrburgring',onPick:()=>this.comboSelect(1)},{n:'3',label:'Pro Combo',desc:'All three circuits',onPick:()=>this.comboSelect(2)}],
+      isListView:!isMap, isMapView:isMap, listBtnStyle, mapBtnStyle, onViewList:()=>this.setView('list'), onViewMap:()=>this.setView('map'),
+      leftPods, rightPods,
+      showRules:S.rulesOpen, rulesRows, onRulesExpand:()=>this.openRules(), onCloseRules:()=>this.closeRules(),
+      stop:(e)=>{ if(e&&e.stopPropagation) e.stopPropagation(); },
+      onLockAll:()=>this.lockAll(), onUnlockAll:()=>this.openUnlock(),
+      onConfirmUnlock:()=>this.confirmUnlock(), onConfirmPayment:()=>this.confirmPayment(), onCloseModal:()=>this.closeModal(),
+      selX3:()=>this.selectPackage('x3'), selX5:()=>this.selectPackage('x5'), selGold:()=>this.selectPackage('gold'), selPlat:()=>this.selectPackage('plat'),
+      selSilver:()=>this.selectPackage('silver'), selBronze:()=>this.selectPackage('bronze'), selVoucher:()=>this.selectPackage('voucher'),
+      selMin30:()=>this.selectPackage('min30'), selMin60:()=>this.selectPackage('min60'), selCustom:()=>this.selectPackage('custom'),
+      onSubmit:()=>this.submitRace(), onStart:()=>this.startRace(), onEdit:()=>this.editPods(), onCancel:()=>this.cancelSetup(), onHome:()=>this.go('home'),
+      buildCount:S.buildSel.length, hasBuild:S.buildSel.length>0, buildUnlockedTotal:counts.unlocked,
+      onBuildCreate:()=>this.startBuildRace(false), onBuildClear:()=>this.clearBuild()
+    };
+  }
+}
+</script>
+</body>
+</html>

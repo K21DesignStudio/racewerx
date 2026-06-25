@@ -1,0 +1,39 @@
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:#07090D;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  color:#F2F5F9;
+}
+button{font-family:inherit}
+
+/* ===== Keyframes (ported verbatim from the prototype) ===== */
+@keyframes livePulse{0%{box-shadow:0 0 0 0 rgba(47,210,122,.5)}70%{box-shadow:0 0 0 7px rgba(47,210,122,0)}100%{box-shadow:0 0 0 0 rgba(47,210,122,0)}}
+@keyframes popIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes overlayIn{from{opacity:0}to{opacity:1}}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes ringPulse{0%{box-shadow:0 0 0 0 rgba(47,210,122,.45)}70%{box-shadow:0 0 0 18px rgba(47,210,122,0)}100%{box-shadow:0 0 0 0 rgba(47,210,122,0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes dashMove{to{stroke-dashoffset:-26}}
+@keyframes liveBlink{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ===== Responsive app bar (ported from the prototype helmet) ===== */
+@media (max-width:760px){
+  .rw-actionbar{flex:1 1 100%;flex-wrap:nowrap !important;gap:9px !important;}
+  .rw-actionbar .rw-lockgroup{flex:1 1 auto;gap:9px;min-width:0;}
+  .rw-actionbar .rw-lockgroup button{flex:1 1 0;min-width:0;height:52px !important;padding:0 12px !important;font-size:14px !important;}
+  .rw-actionbar .rw-clock{font-size:15px !important;min-width:0 !important;flex:none;}
+  .rw-actionbar .rw-receipt{height:52px !important;padding:0 18px !important;flex:none;}
+  .rw-actionbar .rw-avatar{width:52px !important;height:52px !important;flex:none;}
+}
+@media (max-width:520px){
+  .rw-actionbar .rw-receipt{padding:0 14px !important;}
+  .rw-actionbar .rw-receipt .rw-receipt-label{display:none !important;}
+}
+@media (max-width:360px){
+  .rw-actionbar{gap:7px !important;}
+  .rw-actionbar .rw-lockgroup{gap:7px;}
+  .rw-actionbar .rw-lockgroup button{padding:0 9px !important;}
+  .rw-actionbar .rw-clock{display:none !important;}
+}
