@@ -114,7 +114,9 @@ export interface DashboardActions {
   clearBuild: () => void;
   lockPod: (id: number) => void;
   unlockPod: (id: number) => void;
+  standbyPod: (id: number) => void;
   lockAll: () => void;
+  standbyAll: () => void;
   openUnlock: () => void;
   confirmUnlock: () => void;
   confirmPayment: () => void;
@@ -276,6 +278,32 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     [setStatus, toast]
   );
 
+  const standbyPod = useCallback(
+    async (id: number) => {
+      const previous = ref.current.pods.find((p) => p.id === id)?.status;
+      setStatus(id, "standby");
+
+      try {
+        const result = await sendSimLockCommand("standby", id);
+        toast(
+          "Pod " +
+            String(id).padStart(2, "0") +
+            " standby" +
+            (result.simulated ? " (demo)" : "")
+        );
+      } catch (error) {
+        if (previous) setStatus(id, previous);
+        toast(
+          "Pod " +
+            String(id).padStart(2, "0") +
+            " standby failed – " +
+            (error instanceof Error ? error.message : "Sim Lock unavailable")
+        );
+      }
+    },
+    [setStatus, toast]
+  );
+
   const doUnlockAll = useCallback(async () => {
     const previous = ref.current.pods;
     setState((s) => ({
@@ -355,6 +383,32 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         setState((s) => ({ ...s, pods: previous }));
         toast(
           "Lock all failed – " +
+            (error instanceof Error ? error.message : "Sim Lock unavailable")
+        );
+      }
+    };
+
+    const standbyAll = async () => {
+      const previous = ref.current.pods;
+      setState((s) => ({
+        ...s,
+        pods: s.pods.map((p) =>
+          p.status === "offline" || p.status === "inrace"
+            ? p
+            : { ...p, status: "standby" }
+        ),
+      }));
+
+      try {
+        const result = await sendSimLockCommand("standby-all");
+        toast(
+          "All available pods set to standby" +
+            (result.simulated ? " (demo)" : "")
+        );
+      } catch (error) {
+        setState((s) => ({ ...s, pods: previous }));
+        toast(
+          "Standby all failed – " +
             (error instanceof Error ? error.message : "Sim Lock unavailable")
         );
       }
@@ -649,7 +703,9 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       clearBuild,
       lockPod,
       unlockPod,
+      standbyPod,
       lockAll,
+      standbyAll,
       openUnlock,
       confirmUnlock,
       confirmPayment,
@@ -684,7 +740,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       resetCar,
       toast,
     };
-  }, [patch, toast, clearLobby, doUnlockAll, lockPod, unlockPod]);
+  }, [patch, toast, clearLobby, doUnlockAll, lockPod, standbyPod, unlockPod]);
 
   const value = useMemo<StoreValue>(() => ({ state, actions }), [state, actions]);
 
