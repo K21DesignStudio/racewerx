@@ -31,6 +31,7 @@ import {
   Tele,
   ViewMode,
 } from "@/lib/data";
+import { sendSimLockCommand } from "@/lib/simLockClient";
 
 // ---------------------------------------------------------------------------
 // State shape — one object, mirroring the prototype's component state.
@@ -224,20 +225,79 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
-  const lockPod = useCallback((id: number) => setStatus(id, "locked"), [setStatus]);
+  const lockPod = useCallback(
+    async (id: number) => {
+      const previous = ref.current.pods.find((p) => p.id === id)?.status;
+      setStatus(id, "locked");
+
+      try {
+        const result = await sendSimLockCommand("lock", id);
+        toast(
+          "Pod " +
+            String(id).padStart(2, "0") +
+            " locked" +
+            (result.simulated ? " (demo)" : "")
+        );
+      } catch (error) {
+        if (previous) setStatus(id, previous);
+        toast(
+          "Pod " +
+            String(id).padStart(2, "0") +
+            " lock failed – " +
+            (error instanceof Error ? error.message : "Sim Lock unavailable")
+        );
+      }
+    },
+    [setStatus, toast]
+  );
   const unlockPod = useCallback(
-    (id: number) => setStatus(id, "unlocked"),
-    [setStatus]
+    async (id: number) => {
+      const previous = ref.current.pods.find((p) => p.id === id)?.status;
+      setStatus(id, "unlocked");
+
+      try {
+        const result = await sendSimLockCommand("unlock", id);
+        toast(
+          "Pod " +
+            String(id).padStart(2, "0") +
+            " unlocked" +
+            (result.simulated ? " (demo)" : "")
+        );
+      } catch (error) {
+        if (previous) setStatus(id, previous);
+        toast(
+          "Pod " +
+            String(id).padStart(2, "0") +
+            " unlock failed – " +
+            (error instanceof Error ? error.message : "Sim Lock unavailable")
+        );
+      }
+    },
+    [setStatus, toast]
   );
 
-  const doUnlockAll = useCallback(() => {
+  const doUnlockAll = useCallback(async () => {
+    const previous = ref.current.pods;
     setState((s) => ({
       ...s,
       pods: s.pods.map((p) =>
         p.status === "offline" ? p : { ...p, status: "unlocked" }
       ),
     }));
-  }, []);
+
+    try {
+      const result = await sendSimLockCommand("unlock-all");
+      toast("All available pods unlocked" + (result.simulated ? " (demo)" : ""));
+      return true;
+    } catch (error) {
+      setState((s) => ({ ...s, pods: previous }));
+      toast(
+        "Unlock all failed – " +
+          (error instanceof Error ? error.message : "Sim Lock unavailable")
+      );
+      return false;
+    }
+  }, [toast]);
 
   const actions = useMemo<DashboardActions>(() => {
     const go = (screen: ScreenName) => {
@@ -277,7 +337,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       toast("Race build cleared");
     };
 
-    const lockAll = () => {
+    const lockAll = async () => {
+      const previous = ref.current.pods;
       setState((s) => ({
         ...s,
         pods: s.pods.map((p) =>
@@ -286,23 +347,31 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
             : { ...p, status: "locked" }
         ),
       }));
-      toast("All available pods locked");
+
+      try {
+        const result = await sendSimLockCommand("lock-all");
+        toast("All available pods locked" + (result.simulated ? " (demo)" : ""));
+      } catch (error) {
+        setState((s) => ({ ...s, pods: previous }));
+        toast(
+          "Lock all failed – " +
+            (error instanceof Error ? error.message : "Sim Lock unavailable")
+        );
+      }
     };
 
     const openUnlock = () => patch({ modal: "unlockConfirm" });
 
-    const confirmUnlock = () => {
+    const confirmUnlock = async () => {
       if (CONFIG.tillRequired === false) {
-        doUnlockAll();
-        patch({ modal: "unlockSuccess" });
+        if (await doUnlockAll()) patch({ modal: "unlockSuccess" });
       } else {
         patch({ modal: "till" });
       }
     };
 
-    const confirmPayment = () => {
-      doUnlockAll();
-      patch({ modal: "unlockSuccess" });
+    const confirmPayment = async () => {
+      if (await doUnlockAll()) patch({ modal: "unlockSuccess" });
     };
 
     const closeModal = () => patch({ modal: null });
