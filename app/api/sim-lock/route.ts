@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 
-type SimLockAction = "lock" | "unlock" | "lock-all" | "unlock-all";
+type SimLockAction =
+  | "lock"
+  | "unlock"
+  | "standby"
+  | "lock-all"
+  | "unlock-all"
+  | "standby-all";
 
 interface SimLockCommand {
   action?: SimLockAction;
@@ -10,23 +16,29 @@ interface SimLockCommand {
 const DEFAULT_PATHS: Record<SimLockAction, string> = {
   lock: "/api/bridge/command",
   unlock: "/api/bridge/command",
+  standby: "/api/bridge/command",
   "lock-all": "/api/bridge/command",
   "unlock-all": "/api/bridge/command",
+  "standby-all": "/api/bridge/command",
 };
 
 const PATH_ENV: Record<SimLockAction, string> = {
   lock: "SIM_LOCK_LOCK_PATH",
   unlock: "SIM_LOCK_UNLOCK_PATH",
+  standby: "SIM_LOCK_STANDBY_PATH",
   "lock-all": "SIM_LOCK_LOCK_ALL_PATH",
   "unlock-all": "SIM_LOCK_UNLOCK_ALL_PATH",
+  "standby-all": "SIM_LOCK_STANDBY_ALL_PATH",
 };
 
 function isAction(value: unknown): value is SimLockAction {
   return (
     value === "lock" ||
     value === "unlock" ||
+    value === "standby" ||
     value === "lock-all" ||
-    value === "unlock-all"
+    value === "unlock-all" ||
+    value === "standby-all"
   );
 }
 
@@ -61,7 +73,9 @@ export async function POST(request: Request) {
   }
 
   if (
-    (command.action === "lock" || command.action === "unlock") &&
+    (command.action === "lock" ||
+      command.action === "unlock" ||
+      command.action === "standby") &&
     typeof command.podId !== "number"
   ) {
     return NextResponse.json(
