@@ -3,7 +3,7 @@
 import React from "react";
 import { css } from "./css";
 import { Hover } from "./Hover";
-import { LockClosed, LockOpen, Printer } from "./Icons";
+import { EyeOff, LockClosed, LockOpen, Printer } from "./Icons";
 import type { Vals } from "@/state/useVals";
 
 function Stat({
@@ -94,6 +94,13 @@ export function AppBar({ v }: { v: Vals }) {
           >
             <LockClosed w={17} h={17} sw={2.3} />
             <span className="rw-blabel">LOCK</span>
+          </button>
+          <button
+            onClick={v.onStandbyAll}
+            style={css("display:inline-flex;align-items:center;gap:8px;height:56px;padding:0 18px;border-radius:12px;border:1px solid rgba(167,139,250,.42);background:rgba(167,139,250,.1);color:#C4B5FD;font-family:'Saira Condensed';font-weight:800;letter-spacing:.08em;font-size:15px;cursor:pointer;")}
+          >
+            <EyeOff w={17} h={17} sw={2.2} />
+            <span className="rw-blabel">STANDBY</span>
           </button>
           <button
             onClick={v.onUnlockAll}
