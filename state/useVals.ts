@@ -551,6 +551,7 @@ export function useVals() {
       },
       onLockAll: () => A_.lockAll(),
       onStandbyAll: () => A_.standbyAll(),
+      onGetStatus: () => A_.getStatus(),
       onUnlockAll: () => A_.openUnlock(),
       onConfirmUnlock: () => A_.confirmUnlock(),
       onConfirmPayment: () => A_.confirmPayment(),
