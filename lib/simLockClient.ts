@@ -1,4 +1,10 @@
-export type SimLockAction = "lock" | "unlock" | "lock-all" | "unlock-all";
+export type SimLockAction =
+  | "lock"
+  | "unlock"
+  | "standby"
+  | "lock-all"
+  | "unlock-all"
+  | "standby-all";
 
 export interface SimLockCommandResult {
   ok: boolean;
