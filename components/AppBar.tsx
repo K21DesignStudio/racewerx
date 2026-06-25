@@ -122,7 +122,16 @@ export function AppBar({ v }: { v: Vals }) {
           <Printer w={17} h={17} />
           <span className="rw-receipt-label">RECEIPT</span>
         </Hover>
-        <div className="rw-avatar" style={css("width:56px;height:56px;border-radius:12px;background:linear-gradient(160deg,#1A2230,#11151C);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-family:'Saira Condensed';font-weight:700;font-size:14px;color:#9FB0C4;")}>ST</div>
+        <Hover
+          as="button"
+          onClick={v.onGetStatus}
+          className="rw-avatar"
+          title="Get live Sim Lock status"
+          style={css("width:56px;height:56px;border-radius:12px;background:linear-gradient(160deg,#1A2230,#11151C);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-family:'Saira Condensed';font-weight:700;font-size:14px;color:#9FB0C4;cursor:pointer;")}
+          hoverStyle={css("border-color:rgba(47,210,122,.45);color:#2FD27A;")}
+        >
+          ST
+        </Hover>
       </div>
     </div>
   );
