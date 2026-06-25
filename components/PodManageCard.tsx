@@ -11,6 +11,7 @@ import {
   Plus,
   Check,
   ExpandCorners,
+  EyeOff,
   Reset,
 } from "./Icons";
 import type { Vals } from "@/state/useVals";
@@ -55,18 +56,24 @@ export function PodManageCard({
         <div style={css("font-size:13px;color:#8A95A6;border-top:1px solid rgba(255,255,255,.06);padding-top:13px;")}>{p.desc}</div>
 
         {p.actionable && (
-          <div style={css("display:grid;grid-template-columns:1fr 1fr;gap:10px;")}>
+          <div style={css("display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;")}>
             <button
               onClick={p.onLock}
-              style={css("height:50px;border-radius:11px;border:1px solid rgba(255,59,92,.35);background:rgba(255,59,92,.07);color:#FF6B82;font-family:'Saira Condensed';font-weight:700;letter-spacing:.07em;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;")}
+              style={css("height:50px;border-radius:11px;border:1px solid rgba(255,59,92,.35);background:rgba(255,59,92,.07);color:#FF6B82;font-family:'Saira Condensed';font-weight:700;letter-spacing:.06em;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;")}
             >
-              <LockClosed w={16} h={16} />LOCK
+              <LockClosed w={15} h={15} />LOCK
+            </button>
+            <button
+              onClick={p.onStandby}
+              style={css("height:50px;border-radius:11px;border:1px solid rgba(167,139,250,.38);background:rgba(167,139,250,.09);color:#C4B5FD;font-family:'Saira Condensed';font-weight:700;letter-spacing:.06em;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;")}
+            >
+              <EyeOff w={15} h={15} />STANDBY
             </button>
             <button
               onClick={p.onUnlock}
-              style={css("height:50px;border-radius:11px;border:1px solid rgba(43,166,255,.4);background:rgba(43,166,255,.1);color:#5BC0FF;font-family:'Saira Condensed';font-weight:700;letter-spacing:.07em;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;")}
+              style={css("height:50px;border-radius:11px;border:1px solid rgba(43,166,255,.4);background:rgba(43,166,255,.1);color:#5BC0FF;font-family:'Saira Condensed';font-weight:700;letter-spacing:.06em;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;")}
             >
-              <LockOpen w={16} h={16} />UNLOCK
+              <LockOpen w={15} h={15} />UNLOCK
             </button>
           </div>
         )}
