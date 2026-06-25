@@ -1,0 +1,140 @@
+import { NextResponse } from "next/server";
+
+type SimLockAction = "lock" | "unlock" | "lock-all" | "unlock-all";
+
+interface SimLockCommand {
+  action?: SimLockAction;
+  podId?: number;
+}
+
+const DEFAULT_PATHS: Record<SimLockAction, string> = {
+  lock: "/api/pods/{podId}/lock",
+  unlock: "/api/pods/{podId}/unlock",
+  "lock-all": "/api/pods/lock-all",
+  "unlock-all": "/api/pods/unlock-all",
+};
+
+const PATH_ENV: Record<SimLockAction, string> = {
+  lock: "SIM_LOCK_LOCK_PATH",
+  unlock: "SIM_LOCK_UNLOCK_PATH",
+  "lock-all": "SIM_LOCK_LOCK_ALL_PATH",
+  "unlock-all": "SIM_LOCK_UNLOCK_ALL_PATH",
+};
+
+function isAction(value: unknown): value is SimLockAction {
+  return (
+    value === "lock" ||
+    value === "unlock" ||
+    value === "lock-all" ||
+    value === "unlock-all"
+  );
+}
+
+function buildAgentUrl(baseUrl: string, action: SimLockAction, podId?: number) {
+  const pathTemplate =
+    process.env[PATH_ENV[action]] ?? DEFAULT_PATHS[action];
+  const path = pathTemplate.replace("{podId}", String(podId ?? ""));
+  return new URL(path, baseUrl).toString();
+}
+
+export async function POST(request: Request) {
+  let command: SimLockCommand;
+
+  try {
+    command = (await request.json()) as SimLockCommand;
+  } catch {
+    return NextResponse.json(
+      { ok: false, error: "Invalid Sim Lock command JSON" },
+      { status: 400 }
+    );
+  }
+
+  if (!isAction(command.action)) {
+    return NextResponse.json(
+      { ok: false, error: "Unknown Sim Lock action" },
+      { status: 400 }
+    );
+  }
+
+  if (
+    (command.action === "lock" || command.action === "unlock") &&
+    typeof command.podId !== "number"
+  ) {
+    return NextResponse.json(
+      { ok: false, error: "podId is required for this Sim Lock action" },
+      { status: 400 }
+    );
+  }
+
+  const agentBaseUrl = process.env.SIM_LOCK_AGENT_URL;
+
+  if (!agentBaseUrl) {
+    return NextResponse.json({
+      ok: true,
+      action: command.action,
+      podId: command.podId,
+      simulated: true,
+      message: "SIM_LOCK_AGENT_URL is not set; command accepted in demo mode.",
+    });
+  }
+
+  const controller = new AbortController();
+  const timeout = Number(process.env.SIM_LOCK_TIMEOUT_MS ?? 2500);
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(
+      buildAgentUrl(agentBaseUrl, command.action, command.podId),
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(process.env.SIM_LOCK_AGENT_TOKEN
+            ? { Authorization: `Bearer ${process.env.SIM_LOCK_AGENT_TOKEN}` }
+            : {}),
+        },
+        body: JSON.stringify(command),
+        signal: controller.signal,
+      }
+    );
+
+    const text = await response.text();
+    let agentPayload: unknown = null;
+
+    if (text) {
+      try {
+        agentPayload = JSON.parse(text);
+      } catch {
+        agentPayload = { message: text };
+      }
+    }
+
+    if (!response.ok) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Sim Lock agent rejected the command",
+          status: response.status,
+          agent: agentPayload,
+        },
+        { status: 502 }
+      );
+    }
+
+    return NextResponse.json({
+      ok: true,
+      action: command.action,
+      podId: command.podId,
+      agent: agentPayload,
+    });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unable to reach Sim Lock agent";
+    return NextResponse.json(
+      { ok: false, error: message },
+      { status: 502 }
+    );
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
