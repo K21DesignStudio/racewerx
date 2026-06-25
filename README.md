@@ -47,9 +47,9 @@ screens and overlays:
 - **Pod expand / live sim view** with telemetry HUD and **Reset Car**, the
   **stat-group list** modal, the expandable **Session Rules** editor, and toasts.
 
-All data and timed behaviour (pod seed states, telemetry, lobby timers,
-generated PC specs) are client-side **mock**, exactly as the prototype — there
-is no backend.
+Timed behaviour (pod seed states, telemetry, lobby timers, generated PC specs)
+stays client-side as in the prototype. Lock/unlock actions now call the Sim Lock
+bridge API first, then update the dashboard state.
 
 ## Architecture
 
@@ -85,6 +85,42 @@ Editable knobs from the prototype live in `lib/data.ts` → `CONFIG`:
 `centreName`, `podCount` (2–16), `tillRequired` (default `false` — Unlock All
 skips the till step; set `true` to require a till transaction), and
 `unlockPrice`.
+
+### Sim Lock bridge
+
+Home screen pod **LOCK / UNLOCK** buttons and the header **LOCK / UNLOCK ALL**
+actions POST to `app/api/sim-lock/route.ts`.
+
+Without `SIM_LOCK_AGENT_URL`, the route runs in demo mode and returns success so
+the UI can be tested locally and on Vercel.
+
+Set these environment variables when pointing the dashboard at the local Sim
+Lock agent:
+
+```bash
+SIM_LOCK_AGENT_URL=http://localhost:8787
+SIM_LOCK_AGENT_TOKEN=optional-secret
+SIM_LOCK_TIMEOUT_MS=2500
+```
+
+Default agent endpoints:
+
+```text
+POST /api/pods/{podId}/lock
+POST /api/pods/{podId}/unlock
+POST /api/pods/lock-all
+POST /api/pods/unlock-all
+```
+
+If the existing agent uses different paths, override them without changing the
+dashboard code:
+
+```bash
+SIM_LOCK_LOCK_PATH=/lock/{podId}
+SIM_LOCK_UNLOCK_PATH=/unlock/{podId}
+SIM_LOCK_LOCK_ALL_PATH=/lock-all
+SIM_LOCK_UNLOCK_ALL_PATH=/unlock-all
+```
 
 ## Provenance
 
