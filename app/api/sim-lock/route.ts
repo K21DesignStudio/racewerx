@@ -8,10 +8,10 @@ interface SimLockCommand {
 }
 
 const DEFAULT_PATHS: Record<SimLockAction, string> = {
-  lock: "/api/pods/{podId}/lock",
-  unlock: "/api/pods/{podId}/unlock",
-  "lock-all": "/api/pods/lock-all",
-  "unlock-all": "/api/pods/unlock-all",
+  lock: "/api/bridge/command",
+  unlock: "/api/bridge/command",
+  "lock-all": "/api/bridge/command",
+  "unlock-all": "/api/bridge/command",
 };
 
 const PATH_ENV: Record<SimLockAction, string> = {
@@ -35,6 +35,10 @@ function buildAgentUrl(baseUrl: string, action: SimLockAction, podId?: number) {
     process.env[PATH_ENV[action]] ?? DEFAULT_PATHS[action];
   const path = pathTemplate.replace("{podId}", String(podId ?? ""));
   return new URL(path, baseUrl).toString();
+}
+
+function portalPodId(podId?: number) {
+  return typeof podId === "number" ? `pod-${podId}` : undefined;
 }
 
 export async function POST(request: Request) {
@@ -66,17 +70,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const agentBaseUrl = process.env.SIM_LOCK_AGENT_URL;
-
-  if (!agentBaseUrl) {
-    return NextResponse.json({
-      ok: true,
-      action: command.action,
-      podId: command.podId,
-      simulated: true,
-      message: "SIM_LOCK_AGENT_URL is not set; command accepted in demo mode.",
-    });
-  }
+  const agentBaseUrl =
+    process.env.SIM_LOCK_AGENT_URL ?? "https://sim-lock-portal.vercel.app";
 
   const controller = new AbortController();
   const timeout = Number(process.env.SIM_LOCK_TIMEOUT_MS ?? 2500);
@@ -89,11 +84,16 @@ export async function POST(request: Request) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-bridge-key":
+            process.env.SIM_LOCK_AGENT_TOKEN ?? "racewerx-bridge-secret-001",
           ...(process.env.SIM_LOCK_AGENT_TOKEN
             ? { Authorization: `Bearer ${process.env.SIM_LOCK_AGENT_TOKEN}` }
             : {}),
         },
-        body: JSON.stringify(command),
+        body: JSON.stringify({
+          ...command,
+          podId: portalPodId(command.podId),
+        }),
         signal: controller.signal,
       }
     );
