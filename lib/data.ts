@@ -4,7 +4,13 @@
 // behaviour stays identical; only the structure is adapted to TypeScript.
 // ============================================================================
 
-export type PodStatus = "locked" | "unlocked" | "inrace" | "ready" | "offline";
+export type PodStatus =
+  | "locked"
+  | "unlocked"
+  | "standby"
+  | "inrace"
+  | "ready"
+  | "offline";
 
 export interface Pod {
   id: number;
@@ -140,6 +146,12 @@ export function meta(status: PodStatus): StatusMeta {
       color: "#2BA6FF",
       soft: "rgba(43,166,255,.14)",
       desc: "Open for customer use",
+    },
+    standby: {
+      label: "STANDBY",
+      color: "#A78BFA",
+      soft: "rgba(167,139,250,.14)",
+      desc: "Held in standby",
     },
     inrace: {
       label: "IN RACE",
