@@ -5,9 +5,6 @@ export const metadata: Metadata = {
   title: "Racewerx — Staff Control Centre",
   description:
     "Racewerx sim-racing centre staff dashboard. Lock and unlock sim pods, build races on Project CARS 2, and monitor live sessions.",
-  icons: {
-    icon: "/assets/racewerx-logo.png",
-  },
 };
 
 export const viewport: Viewport = {

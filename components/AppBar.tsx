@@ -46,12 +46,12 @@ export function AppBar({ v }: { v: Vals }) {
         style={css("display:flex;align-items:center;gap:13px;cursor:pointer;border-radius:11px;transition:opacity .15s;")}
         hoverStyle={css("opacity:.78;")}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/assets/racewerx-logo.png"
-          alt="Racewerx"
-          style={css("height:50px;width:50px;border-radius:11px;display:block;object-fit:cover;")}
-        />
+        <div
+          aria-hidden="true"
+          style={css("height:50px;width:50px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#1A2230,#090B10);border:1px solid rgba(255,255,255,.12);font-family:'Saira Condensed';font-weight:800;font-size:18px;letter-spacing:.04em;color:#F2F5F9;box-shadow:inset 0 0 0 1px rgba(43,166,255,.18);")}
+        >
+          RW
+        </div>
         <div style={css("line-height:1;")}>
           <div style={css("font-family:'Saira Condensed';font-weight:800;font-size:23.5px;letter-spacing:.32em;")}>{v.centreName}</div>
           <div style={css("font-size:9px;font-weight:600;letter-spacing:.4em;color:#7A8497;margin-top:5px;")}>RACING&nbsp;SIMULATORS</div>
