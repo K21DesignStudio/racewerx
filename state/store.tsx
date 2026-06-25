@@ -31,11 +31,8 @@ import {
   Tele,
   ViewMode,
 } from "@/lib/data";
-import { sendSimLockCommand } from "@/lib/simLockClient";
+import { getSimLockStatus, sendSimLockCommand } from "@/lib/simLockClient";
 
-// ---------------------------------------------------------------------------
-// State shape — one object, mirroring the prototype's component state.
-// ---------------------------------------------------------------------------
 export interface DashboardState {
   screen: ScreenName;
   modal: ModalName;
@@ -117,6 +114,7 @@ export interface DashboardActions {
   standbyPod: (id: number) => void;
   lockAll: () => void;
   standbyAll: () => void;
+  getStatus: () => void;
   openUnlock: () => void;
   confirmUnlock: () => void;
   confirmPayment: () => void;
@@ -161,12 +159,9 @@ const StoreContext = createContext<StoreValue | null>(null);
 
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<DashboardState>(initialState);
-
-  // Always-fresh snapshot for actions that read-then-write (timers etc.).
   const ref = useRef(state);
   ref.current = state;
 
-  // Timer handles, mirroring the prototype's instance fields.
   const toastT = useRef<ReturnType<typeof setTimeout> | null>(null);
   const teleT = useRef<ReturnType<typeof setInterval> | null>(null);
   const perfT = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -194,7 +189,6 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     lobT.current = [];
   }, []);
 
-  // ---- clock ----
   useEffect(() => {
     const tick = () => {
       const d = new Date();
@@ -217,7 +211,6 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         clearInterval(x as unknown as ReturnType<typeof setInterval>);
       });
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const setStatus = useCallback((id: number, status: PodStatus) => {
@@ -231,48 +224,27 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     async (id: number) => {
       const previous = ref.current.pods.find((p) => p.id === id)?.status;
       setStatus(id, "locked");
-
       try {
         const result = await sendSimLockCommand("lock", id);
-        toast(
-          "Pod " +
-            String(id).padStart(2, "0") +
-            " locked" +
-            (result.simulated ? " (demo)" : "")
-        );
+        toast("Pod " + String(id).padStart(2, "0") + " locked" + (result.simulated ? " (demo)" : ""));
       } catch (error) {
         if (previous) setStatus(id, previous);
-        toast(
-          "Pod " +
-            String(id).padStart(2, "0") +
-            " lock failed – " +
-            (error instanceof Error ? error.message : "Sim Lock unavailable")
-        );
+        toast("Pod " + String(id).padStart(2, "0") + " lock failed - " + (error instanceof Error ? error.message : "Sim Lock unavailable"));
       }
     },
     [setStatus, toast]
   );
+
   const unlockPod = useCallback(
     async (id: number) => {
       const previous = ref.current.pods.find((p) => p.id === id)?.status;
       setStatus(id, "unlocked");
-
       try {
         const result = await sendSimLockCommand("unlock", id);
-        toast(
-          "Pod " +
-            String(id).padStart(2, "0") +
-            " unlocked" +
-            (result.simulated ? " (demo)" : "")
-        );
+        toast("Pod " + String(id).padStart(2, "0") + " unlocked" + (result.simulated ? " (demo)" : ""));
       } catch (error) {
         if (previous) setStatus(id, previous);
-        toast(
-          "Pod " +
-            String(id).padStart(2, "0") +
-            " unlock failed – " +
-            (error instanceof Error ? error.message : "Sim Lock unavailable")
-        );
+        toast("Pod " + String(id).padStart(2, "0") + " unlock failed - " + (error instanceof Error ? error.message : "Sim Lock unavailable"));
       }
     },
     [setStatus, toast]
@@ -282,27 +254,33 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     async (id: number) => {
       const previous = ref.current.pods.find((p) => p.id === id)?.status;
       setStatus(id, "standby");
-
       try {
         const result = await sendSimLockCommand("standby", id);
-        toast(
-          "Pod " +
-            String(id).padStart(2, "0") +
-            " standby" +
-            (result.simulated ? " (demo)" : "")
-        );
+        toast("Pod " + String(id).padStart(2, "0") + " standby" + (result.simulated ? " (demo)" : ""));
       } catch (error) {
         if (previous) setStatus(id, previous);
-        toast(
-          "Pod " +
-            String(id).padStart(2, "0") +
-            " standby failed – " +
-            (error instanceof Error ? error.message : "Sim Lock unavailable")
-        );
+        toast("Pod " + String(id).padStart(2, "0") + " standby failed - " + (error instanceof Error ? error.message : "Sim Lock unavailable"));
       }
     },
     [setStatus, toast]
   );
+
+  const getStatus = useCallback(async () => {
+    try {
+      const result = await getSimLockStatus();
+      const byId = new Map(result.pods.map((pod) => [pod.id, pod.status]));
+      setState((s) => ({
+        ...s,
+        pods: s.pods.map((pod) => {
+          const status = byId.get(pod.id);
+          return status ? { ...pod, status } : pod;
+        }),
+      }));
+      toast("Status refreshed from Sim Lock" + (result.pods.length ? " - " + result.pods.length + " pods" : ""));
+    } catch (error) {
+      toast("Get status failed - " + (error instanceof Error ? error.message : "Sim Lock unavailable"));
+    }
+  }, [toast]);
 
   const doUnlockAll = useCallback(async () => {
     const previous = ref.current.pods;
@@ -312,17 +290,13 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         p.status === "offline" ? p : { ...p, status: "unlocked" }
       ),
     }));
-
     try {
       const result = await sendSimLockCommand("unlock-all");
       toast("All available pods unlocked" + (result.simulated ? " (demo)" : ""));
       return true;
     } catch (error) {
       setState((s) => ({ ...s, pods: previous }));
-      toast(
-        "Unlock all failed – " +
-          (error instanceof Error ? error.message : "Sim Lock unavailable")
-      );
+      toast("Unlock all failed - " + (error instanceof Error ? error.message : "Sim Lock unavailable"));
       return false;
     }
   }, [toast]);
@@ -330,8 +304,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const actions = useMemo<DashboardActions>(() => {
     const go = (screen: ScreenName) => {
       if (ref.current.screen === "lobby") clearLobby();
-      const extra: Partial<DashboardState> =
-        screen === "home" ? { presel: [], buildSel: [] } : {};
+      const extra: Partial<DashboardState> = screen === "home" ? { presel: [], buildSel: [] } : {};
       setState((s) => ({ ...s, screen, ...extra }));
     };
 
@@ -340,9 +313,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         const inB = s.buildSel.includes(id);
         return {
           ...s,
-          buildSel: inB
-            ? s.buildSel.filter((x) => x !== id)
-            : s.buildSel.concat(id).sort((a, b) => a - b),
+          buildSel: inB ? s.buildSel.filter((x) => x !== id) : s.buildSel.concat(id).sort((a, b) => a - b),
         };
       });
     };
@@ -351,13 +322,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       const sel = ref.current.buildSel.slice();
       if (!sel.length) return;
       patch({ sel, presel: sel, buildSel: [], screen: "raceSetup" });
-      toast(
-        (auto ? "All unlocked pods added – " : "") +
-          sel.length +
-          " pod" +
-          (sel.length > 1 ? "s" : "") +
-          " ready – choose a package"
-      );
+      toast((auto ? "All unlocked pods added - " : "") + sel.length + " pod" + (sel.length > 1 ? "s" : "") + " ready - choose a package");
     };
 
     const clearBuild = () => {
@@ -370,21 +335,15 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       setState((s) => ({
         ...s,
         pods: s.pods.map((p) =>
-          p.status === "offline" || p.status === "inrace"
-            ? p
-            : { ...p, status: "locked" }
+          p.status === "offline" || p.status === "inrace" ? p : { ...p, status: "locked" }
         ),
       }));
-
       try {
         const result = await sendSimLockCommand("lock-all");
         toast("All available pods locked" + (result.simulated ? " (demo)" : ""));
       } catch (error) {
         setState((s) => ({ ...s, pods: previous }));
-        toast(
-          "Lock all failed – " +
-            (error instanceof Error ? error.message : "Sim Lock unavailable")
-        );
+        toast("Lock all failed - " + (error instanceof Error ? error.message : "Sim Lock unavailable"));
       }
     };
 
@@ -393,29 +352,19 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       setState((s) => ({
         ...s,
         pods: s.pods.map((p) =>
-          p.status === "offline" || p.status === "inrace"
-            ? p
-            : { ...p, status: "standby" }
+          p.status === "offline" || p.status === "inrace" ? p : { ...p, status: "standby" }
         ),
       }));
-
       try {
         const result = await sendSimLockCommand("standby-all");
-        toast(
-          "All available pods set to standby" +
-            (result.simulated ? " (demo)" : "")
-        );
+        toast("All available pods set to standby" + (result.simulated ? " (demo)" : ""));
       } catch (error) {
         setState((s) => ({ ...s, pods: previous }));
-        toast(
-          "Standby all failed – " +
-            (error instanceof Error ? error.message : "Sim Lock unavailable")
-        );
+        toast("Standby all failed - " + (error instanceof Error ? error.message : "Sim Lock unavailable"));
       }
     };
 
     const openUnlock = () => patch({ modal: "unlockConfirm" });
-
     const confirmUnlock = async () => {
       if (CONFIG.tillRequired === false) {
         if (await doUnlockAll()) patch({ modal: "unlockSuccess" });
@@ -423,11 +372,9 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         patch({ modal: "till" });
       }
     };
-
     const confirmPayment = async () => {
       if (await doUnlockAll()) patch({ modal: "unlockSuccess" });
     };
-
     const closeModal = () => patch({ modal: null });
 
     const selectPackage = (key: PackageKey) => {
@@ -453,9 +400,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     const toggleRace = (key: RaceKey) => {
       setState((s) => ({
         ...s,
-        selRaces: s.selRaces.includes(key)
-          ? s.selRaces.filter((x) => x !== key)
-          : s.selRaces.concat(key),
+        selRaces: s.selRaces.includes(key) ? s.selRaces.filter((x) => x !== key) : s.selRaces.concat(key),
       }));
     };
 
@@ -472,10 +417,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     const printReceipt = () => patch({ printOpen: true });
     const closePrint = () => patch({ printOpen: false });
     const togglePrintOpt = (key: PrintOptKey) => {
-      setState((s) => ({
-        ...s,
-        printOpts: { ...s.printOpts, [key]: !s.printOpts[key] },
-      }));
+      setState((s) => ({ ...s, printOpts: { ...s.printOpts, [key]: !s.printOpts[key] } }));
     };
     const confirmPrint = () => {
       const o = ref.current.printOpts;
@@ -494,36 +436,29 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         try {
           const el = document.querySelector("[data-pod-section]");
           if (el) {
-            const y =
-              el.getBoundingClientRect().top + window.pageYOffset - 16;
+            const y = el.getBoundingClientRect().top + window.pageYOffset - 16;
             window.scrollTo({ top: y, behavior: "smooth" });
           }
-        } catch {
-          /* noop */
-        }
+        } catch {}
       }, 70);
     };
 
     const comboSelect = (idx: number) => {
       patch({ selRaces: COMBO_RACES[idx].slice(), aids: COMBO_AIDS[idx] });
-      toast("Combo " + (idx + 1) + " loaded – " + COMBO_RACES[idx].length + " races");
+      toast("Combo " + (idx + 1) + " loaded - " + COMBO_RACES[idx].length + " races");
     };
 
     const setView = (v: ViewMode) => patch({ view: v });
     const openRules = () => patch({ rulesOpen: true });
     const closeRules = () => patch({ rulesOpen: false });
-
     const setAid = (key: AidKey, val: string) => {
       setState((s) => ({ ...s, aids: { ...s.aids, [key]: val } }));
-      toast(AID_CYCLE_LABEL[key] + " → " + val);
+      toast(AID_CYCLE_LABEL[key] + " -> " + val);
     };
-
     const toggleSel = (id: number) => {
       setState((s) => ({
         ...s,
-        sel: s.sel.includes(id)
-          ? s.sel.filter((x) => x !== id)
-          : s.sel.concat(id).sort((a, b) => a - b),
+        sel: s.sel.includes(id) ? s.sel.filter((x) => x !== id) : s.sel.concat(id).sort((a, b) => a - b),
       }));
     };
 
@@ -540,17 +475,10 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
             patch({ joined: i });
             if (i >= total) {
               clearInterval(iv);
-              lobT.current.push(
-                setTimeout(() => {
-                  patch({ lobbyStep: 2 });
-                  lobT.current.push(
-                    setTimeout(
-                      () => patch({ lobbyStep: 3, lobbyReady: true }),
-                      1100
-                    )
-                  );
-                }, 520)
-              );
+              lobT.current.push(setTimeout(() => {
+                patch({ lobbyStep: 2 });
+                lobT.current.push(setTimeout(() => patch({ lobbyStep: 3, lobbyReady: true }), 1100));
+              }, 520));
             }
           }, 460);
           lobT.current.push(iv as unknown as ReturnType<typeof setTimeout>);
@@ -562,9 +490,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       if (!ref.current.sel.length) return;
       setState((s) => ({
         ...s,
-        pods: s.pods.map((p) =>
-          s.sel.includes(p.id) ? { ...p, status: "ready" } : p
-        ),
+        pods: s.pods.map((p) => (s.sel.includes(p.id) ? { ...p, status: "ready" } : p)),
       }));
       enterLobby();
     };
@@ -577,20 +503,17 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     const startRace = () => {
       setState((s) => ({
         ...s,
-        pods: s.pods.map((p) =>
-          s.sel.includes(p.id) ? { ...p, status: "inrace" } : p
-        ),
+        pods: s.pods.map((p) => (s.sel.includes(p.id) ? { ...p, status: "inrace" } : p)),
         screen: "home",
         pkg: null,
         sel: [],
         presel: [],
         buildSel: [],
       }));
-      toast("Race started – good luck out there");
+      toast("Race started - good luck out there");
     };
 
     const editPods = () => patch({ screen: "pods" });
-
     const cancelSetup = () => {
       clearLobby();
       setState((s) => ({
@@ -599,11 +522,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         race: null,
         sel: [],
         selRaces: [],
-        pods: s.pods.map((p) =>
-          s.sel.includes(p.id) && p.status === "ready"
-            ? { ...p, status: "unlocked" }
-            : p
-        ),
+        pods: s.pods.map((p) => (s.sel.includes(p.id) && p.status === "ready" ? { ...p, status: "unlocked" } : p)),
         screen: "home",
         presel: [],
         buildSel: [],
@@ -615,11 +534,10 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       const o = AID_OPTS[key];
       const nv = o[(o.indexOf(ref.current.aids[key]) + 1) % o.length];
       setState((s) => ({ ...s, aids: { ...s.aids, [key]: nv } }));
-      toast(AID_CYCLE_LABEL[key] + " → " + nv);
+      toast(AID_CYCLE_LABEL[key] + " -> " + nv);
     };
 
-    const openStat = (group: DashboardState["statGroup"]) =>
-      patch({ statGroup: group });
+    const openStat = (group: DashboardState["statGroup"]) => patch({ statGroup: group });
     const closeStat = () => patch({ statGroup: null });
 
     const openExpand = (id: number) => {
@@ -627,33 +545,19 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       if (!pod) return;
       if (teleT.current) clearInterval(teleT.current);
       if (pod.status === "inrace") {
-        const grid =
-          ref.current.pods.filter((p) => p.status === "inrace").length || 6;
+        const grid = ref.current.pods.filter((p) => p.status === "inrace").length || 6;
         patch({
           expandPod: id,
           statGroup: null,
           resetting: false,
-          tele: {
-            speed: 208,
-            gear: 5,
-            rpm: 0.72,
-            lap: 2,
-            laps: 3,
-            pos: (id % grid) + 1,
-            grid,
-            lapTime: "01:24.6",
-            lastLap: "01:26.1",
-          },
+          tele: { speed: 208, gear: 5, rpm: 0.72, lap: 2, laps: 3, pos: (id % grid) + 1, grid, lapTime: "01:24.6", lastLap: "01:26.1" },
         });
         teleT.current = setInterval(() => {
           setState((s) => {
             if (!s.tele) return s;
             const sp = Math.max(72, Math.round(150 + Math.random() * 98));
             const g = Math.max(2, Math.min(6, Math.round(sp / 40)));
-            return {
-              ...s,
-              tele: { ...s.tele, speed: sp, gear: g, rpm: 0.42 + Math.random() * 0.52 },
-            };
+            return { ...s, tele: { ...s.tele, speed: sp, gear: g, rpm: 0.42 + Math.random() * 0.52 } };
           });
         }, 650);
       } else {
@@ -692,7 +596,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       patch({ resetting: true });
       resetT.current = setTimeout(() => {
         patch({ resetting: false });
-        toast("Pod " + String(id).padStart(2, "0") + " – car reset to track");
+        toast("Pod " + String(id).padStart(2, "0") + " - car reset to track");
       }, 1500);
     };
 
@@ -706,6 +610,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       standbyPod,
       lockAll,
       standbyAll,
+      getStatus,
       openUnlock,
       confirmUnlock,
       confirmPayment,
@@ -740,7 +645,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       resetCar,
       toast,
     };
-  }, [patch, toast, clearLobby, doUnlockAll, lockPod, standbyPod, unlockPod]);
+  }, [patch, toast, clearLobby, doUnlockAll, getStatus, lockPod, standbyPod, unlockPod]);
 
   const value = useMemo<StoreValue>(() => ({ state, actions }), [state, actions]);
 
