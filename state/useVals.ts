@@ -43,7 +43,6 @@ export function useVals() {
         actionable:
           p.status === "locked" ||
           p.status === "unlocked" ||
-          p.status === "standby" ||
           p.status === "ready",
         inrace: p.status === "inrace",
         offline: p.status === "offline",
@@ -54,10 +53,17 @@ export function useVals() {
         canBuild,
         inBuild,
         notInBuild: canBuild && !inBuild,
+        volumeLevel: p.volumeLevel ?? 50,
+        volumeMuted: !!p.volumeMuted,
+        bridgeReady: !!p.bridgeReady,
+        pendingCommandLabel: p.pendingCommandLabel || "None",
         onBuildToggle: () => A_.toggleBuild(p.id),
         onLock: () => A_.lockPod(p.id),
         onUnlock: () => A_.unlockPod(p.id),
-        onStandby: () => A_.standbyPod(p.id),
+        onVolumeQuiet: () => A_.setVolume(p.id, { level: 20, muted: false }),
+        onVolumeStandard: () => A_.setVolume(p.id, { level: 50, muted: false }),
+        onVolumeRace: () => A_.setVolume(p.id, { level: 100, muted: false }),
+        onVolumeMute: () => A_.setVolume(p.id, { muted: !p.volumeMuted }),
         onSelect: () => A_.toggleSel(p.id),
         onExpand: () => A_.openExpand(p.id),
         onReset: () => A_.resetCar(p.id),
@@ -550,8 +556,6 @@ export function useVals() {
         if (e && e.stopPropagation) e.stopPropagation();
       },
       onLockAll: () => A_.lockAll(),
-      onStandbyAll: () => A_.standbyAll(),
-      onGetStatus: () => A_.getStatus(),
       onUnlockAll: () => A_.openUnlock(),
       onConfirmUnlock: () => A_.confirmUnlock(),
       onConfirmPayment: () => A_.confirmPayment(),
