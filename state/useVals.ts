@@ -556,6 +556,7 @@ export function useVals() {
         if (e && e.stopPropagation) e.stopPropagation();
       },
       onLockAll: () => A_.lockAll(),
+      onStandbyAll: () => A_.toast("Standby command is local until the bridge is online"),
       onUnlockAll: () => A_.openUnlock(),
       onConfirmUnlock: () => A_.confirmUnlock(),
       onConfirmPayment: () => A_.confirmPayment(),
