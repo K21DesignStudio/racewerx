@@ -557,6 +557,7 @@ export function useVals() {
       },
       onLockAll: () => A_.lockAll(),
       onStandbyAll: () => A_.toast("Standby command is local until the bridge is online"),
+      onGetStatus: () => A_.toast("Status refresh is automatic from the bridge"),
       onUnlockAll: () => A_.openUnlock(),
       onConfirmUnlock: () => A_.confirmUnlock(),
       onConfirmPayment: () => A_.confirmPayment(),
