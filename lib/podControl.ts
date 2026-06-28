@@ -100,6 +100,17 @@ function defaultPod(id: string): RemotePod {
   };
 }
 
+function normalizePodId(id: string) {
+  const value = String(id || "pod-unknown").trim();
+  const numeric = value.match(/^(?:pod-)?0*(\d+)$/i);
+
+  if (numeric) {
+    return `pod-${Number(numeric[1])}`;
+  }
+
+  return value || "pod-unknown";
+}
+
 function defaultState(): PortalState {
   return {
     pods: {},
@@ -162,12 +173,20 @@ async function writeLocalState(state: PortalState) {
 }
 
 async function getPortalState() {
+  let state: PortalState;
+
   if (hasRedisEnv()) {
     const raw = await redisCommand<string>(["GET", STORAGE_KEY]);
-    if (raw) return JSON.parse(raw) as PortalState;
+    state = raw ? JSON.parse(raw) as PortalState : defaultState();
+  } else {
+    state = await readLocalState();
   }
 
-  return readLocalState();
+  if (canonicalizePortalState(state)) {
+    await savePortalState(state);
+  }
+
+  return state;
 }
 
 async function savePortalState(state: PortalState) {
@@ -191,6 +210,78 @@ function commandLabel(command: Exclude<RemoteCommand, "none">, volume?: VolumeCo
 
 function getCommandQueue(pod: RemotePod) {
   return (pod.commandQueue || []).filter((item) => item.id > pod.lastAckCommandId);
+}
+
+function lastSeenTime(pod: RemotePod) {
+  return pod.lastSeen ? new Date(pod.lastSeen).getTime() || 0 : 0;
+}
+
+function mergeCommandQueues(
+  first: RemotePod,
+  second: RemotePod,
+  lastAckCommandId: number
+) {
+  const byId = new Map<number, QueuedCommand>();
+
+  [...getCommandQueue(first), ...getCommandQueue(second)]
+    .filter((item) => item.id > lastAckCommandId)
+    .sort((a, b) => a.id - b.id)
+    .forEach((item) => byId.set(item.id, item));
+
+  return [...byId.values()].sort((a, b) => a.id - b.id);
+}
+
+function mergePodRecords(current: RemotePod, next: RemotePod, id: string) {
+  const currentTime = lastSeenTime(current);
+  const nextTime = lastSeenTime(next);
+  const primary = nextTime >= currentTime ? next : current;
+  const secondary = primary === next ? current : next;
+  const lastAckCommandId = Math.max(
+    current.lastAckCommandId || 0,
+    next.lastAckCommandId || 0
+  );
+  const commandQueue = mergeCommandQueues(secondary, primary, lastAckCommandId);
+  const lastCommandId = Math.max(
+    current.lastCommandId || 0,
+    next.lastCommandId || 0,
+    commandQueue.at(-1)?.id || 0
+  );
+
+  return withPendingFromQueue(
+    {
+      ...secondary,
+      ...primary,
+      id,
+      lastAckCommandId,
+      lastCommandId,
+    },
+    commandQueue
+  );
+}
+
+function canonicalizePortalState(state: PortalState) {
+  let changed = false;
+  const pods: Record<string, RemotePod> = {};
+
+  Object.entries(state.pods || {}).forEach(([key, pod]) => {
+    const id = normalizePodId(pod.id || key);
+    const normalizedPod = pod.id === id ? pod : { ...pod, id };
+
+    if (key !== id || pod.id !== id) {
+      changed = true;
+    }
+
+    if (pods[id]) {
+      pods[id] = mergePodRecords(pods[id], normalizedPod, id);
+      changed = true;
+      return;
+    }
+
+    pods[id] = normalizedPod;
+  });
+
+  state.pods = pods;
+  return changed;
 }
 
 function withPendingFromQueue(pod: RemotePod, queue: QueuedCommand[]): RemotePod {
@@ -252,7 +343,8 @@ export async function listPods() {
 
 export async function queuePodCommand(podId: string, command: Exclude<RemoteCommand, "none" | "volume">) {
   const state = await getPortalState();
-  const pod = state.pods[podId] || defaultPod(podId);
+  const id = normalizePodId(podId);
+  const pod = state.pods[id] || defaultPod(id);
   const queue = getCommandQueue(pod);
   const nextCommandId = nextCommandIdFor(pod, queue);
   const queuedCommand: QueuedCommand = {
@@ -262,15 +354,16 @@ export async function queuePodCommand(podId: string, command: Exclude<RemoteComm
     createdAt: nowIso(),
   };
 
-  state.pods[podId] = withPendingFromQueue({ ...pod, lastCommandId: nextCommandId }, [...queue, queuedCommand]);
+  state.pods[id] = withPendingFromQueue({ ...pod, id, lastCommandId: nextCommandId }, [...queue, queuedCommand]);
   await savePortalState(state);
-  return state.pods[podId];
+  return state.pods[id];
 }
 
 export async function queuePodVolume(podId: string, volume: VolumeCommand) {
   const normalizedVolume = normalizeVolume(volume);
   const state = await getPortalState();
-  const pod = state.pods[podId] || defaultPod(podId);
+  const id = normalizePodId(podId);
+  const pod = state.pods[id] || defaultPod(id);
 
   const queue = getCommandQueue(pod);
   const nextCommandId = nextCommandIdFor(pod, queue);
@@ -282,9 +375,10 @@ export async function queuePodVolume(podId: string, volume: VolumeCommand) {
     createdAt: nowIso(),
   };
 
-  state.pods[podId] = withPendingFromQueue(
+  state.pods[id] = withPendingFromQueue(
     {
       ...pod,
+      id,
       lastCommandId: nextCommandId,
       volumeLevel: normalizedVolume.level ?? pod.volumeLevel,
       volumeMuted: normalizedVolume.muted ?? pod.volumeMuted,
@@ -293,12 +387,12 @@ export async function queuePodVolume(podId: string, volume: VolumeCommand) {
   );
 
   await savePortalState(state);
-  return state.pods[podId];
+  return state.pods[id];
 }
 
 export async function handleAgentPoll(body: AgentPollBody) {
   const state = await getPortalState();
-  const podId = body.podId || "pod-unknown";
+  const podId = normalizePodId(body.podId || "pod-unknown");
   const existing = state.pods[podId] || defaultPod(podId);
   const suppliedLog = Array.isArray(body.log) ? body.log.slice(-80) : existing.log;
 
