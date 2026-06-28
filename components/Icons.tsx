@@ -128,6 +128,14 @@ export const Reset = (p: IcoProps) => (
   </Base>
 );
 
+export const Volume = (p: IcoProps) => (
+  <Base sw={2.2} {...p}>
+    <path d="M4 10v4h4l5 4V6l-5 4H4Z" />
+    <path d="M16 9a4 4 0 0 1 0 6" />
+    <path d="M19 6a8 8 0 0 1 0 12" />
+  </Base>
+);
+
 export const Close = (p: IcoProps) => (
   <Base sw={2.2} {...p}>
     <path d="M6 6l12 12" />

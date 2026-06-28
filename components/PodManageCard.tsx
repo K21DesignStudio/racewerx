@@ -12,6 +12,7 @@ import {
   Check,
   ExpandCorners,
   Reset,
+  Volume,
 } from "./Icons";
 import type { Vals } from "@/state/useVals";
 
@@ -25,6 +26,7 @@ export function PodManageCard({
   showBuild: boolean;
 }) {
   const [queuedAudioStatus, setQueuedAudioStatus] = React.useState<string | null>(null);
+  const [volumeOpen, setVolumeOpen] = React.useState(false);
   const audioStatus = queuedAudioStatus ?? (p.bridgeReady
     ? p.volumeMuted
       ? "MUTED"
@@ -39,15 +41,19 @@ export function PodManageCard({
   ) => {
     if (p.bridgeReady) {
       bridgeReadyAction();
+      setVolumeOpen(false);
       return;
     }
 
     setQueuedAudioStatus("QUEUED");
+    setVolumeOpen(false);
     fetch(`/api/pods/pod-${p.id}/volume`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       cache: "no-store",
       body: JSON.stringify(volume),
+    }).then((response) => {
+      if (!response.ok) throw new Error("Volume queue failed");
     }).catch(() => {
       setQueuedAudioStatus(null);
       bridgeReadyAction();
@@ -58,19 +64,36 @@ export function PodManageCard({
     <div style={css("background:#141A24;border:1px solid rgba(255,255,255,.07);border-radius:15px;overflow:hidden;")}>
       <div style={css(`height:4px;background:${p.color};`)} />
       <div style={css("padding:18px;display:flex;flex-direction:column;gap:15px;")}>
-        <button
-          onClick={p.onDetail}
-          title="Open PC details"
-          style={css("display:flex;align-items:flex-start;justify-content:space-between;gap:12px;cursor:pointer;background:none;border:0;padding:0;text-align:left;color:#F2F5F9;width:100%;")}
-        >
-          <div>
-            <div style={css("font-size:11px;font-weight:600;letter-spacing:.26em;color:#6B7689;")}>SIM POD</div>
-            <div style={css("display:flex;align-items:center;gap:8px;margin-top:3px;")}>
-              <span style={css("font-family:'Saira Condensed';font-weight:800;font-size:36px;line-height:1;")}>{p.num}</span>
-              <span style={css("display:inline-flex;color:#5A6475;")}>
-                <ChevRight w={17} h={17} />
-              </span>
-            </div>
+        <div style={css("display:flex;align-items:flex-start;justify-content:space-between;gap:12px;color:#F2F5F9;width:100%;")}>
+          <div style={css("display:flex;align-items:flex-end;gap:12px;min-width:0;")}>
+            <button
+              type="button"
+              onClick={p.onDetail}
+              title="Open PC details"
+              style={css("cursor:pointer;background:none;border:0;padding:0;text-align:left;color:#F2F5F9;")}
+            >
+              <div style={css("font-size:11px;font-weight:600;letter-spacing:.26em;color:#6B7689;")}>SIM POD</div>
+              <div style={css("display:flex;align-items:center;gap:8px;margin-top:3px;")}>
+                <span style={css("font-family:'Saira Condensed';font-weight:800;font-size:36px;line-height:1;")}>{p.num}</span>
+                <span style={css("display:inline-flex;color:#5A6475;")}>
+                  <ChevRight w={17} h={17} />
+                </span>
+              </div>
+            </button>
+            {!p.offline && (
+              <button
+                type="button"
+                onClick={() => setVolumeOpen((open) => !open)}
+                title={`Volume ${audioStatus}`}
+                aria-label={`Volume ${audioStatus}`}
+                style={css(`position:relative;width:54px;height:54px;border-radius:11px;border:1px solid rgba(255,255,255,.1);background:${volumeOpen ? "rgba(91,192,255,.12)" : "rgba(255,255,255,.035)"};color:${queuedAudioStatus ? "#FFB020" : "#C7D0DC"};cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:${volumeOpen ? "0 0 0 1px rgba(91,192,255,.18),0 10px 22px rgba(43,166,255,.14)" : "none"};`)}
+              >
+                <Volume w={23} h={23} />
+                {queuedAudioStatus && (
+                  <span style={css("position:absolute;right:7px;top:7px;width:7px;height:7px;border-radius:50%;background:#FFB020;box-shadow:0 0 12px rgba(255,176,32,.75);")} />
+                )}
+              </button>
+            )}
           </div>
           <span style={css(`display:inline-flex;align-items:center;gap:8px;padding:7px 13px;border-radius:999px;background:${p.soft};`)}>
             {p.live ? (
@@ -80,7 +103,46 @@ export function PodManageCard({
             )}
             <span style={css(`font-family:'Saira Condensed';font-weight:700;letter-spacing:.12em;font-size:13px;color:${p.color};`)}>{p.label}</span>
           </span>
-        </button>
+        </div>
+
+        {volumeOpen && !p.offline && (
+          <div style={css("display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:7px;padding:10px;border-radius:12px;border:1px solid rgba(91,192,255,.18);background:#101720;box-shadow:inset 0 1px 0 rgba(255,255,255,.04);")}>
+            <div style={css("grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:1px;")}>
+              <span style={css("font-family:'Saira Condensed';font-weight:800;letter-spacing:.16em;font-size:11px;color:#7A8497;")}>VOLUME</span>
+              <span style={css(`font-family:'Saira Condensed';font-weight:800;letter-spacing:.08em;font-size:12px;color:${p.bridgeReady ? "#5BC0FF" : "#FFB020"};`)}>
+                {audioStatus}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => queueVolume({ level: 20, muted: false }, p.onVolumeQuiet)}
+              style={css("height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#C7D0DC;font-family:'Saira Condensed';font-weight:700;font-size:12px;cursor:pointer;")}
+            >
+              QUIET
+            </button>
+            <button
+              type="button"
+              onClick={() => queueVolume({ level: 50, muted: false }, p.onVolumeStandard)}
+              style={css("height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#C7D0DC;font-family:'Saira Condensed';font-weight:700;font-size:12px;cursor:pointer;")}
+            >
+              STD
+            </button>
+            <button
+              type="button"
+              onClick={() => queueVolume({ level: 100, muted: false }, p.onVolumeRace)}
+              style={css("height:32px;border-radius:8px;border:1px solid rgba(43,166,255,.32);background:rgba(43,166,255,.09);color:#5BC0FF;font-family:'Saira Condensed';font-weight:800;font-size:12px;cursor:pointer;")}
+            >
+              RACE
+            </button>
+            <button
+              type="button"
+              onClick={() => queueVolume({ muted: !p.volumeMuted }, p.onVolumeMute)}
+              style={css("height:32px;border-radius:8px;border:1px solid rgba(255,176,32,.32);background:rgba(255,176,32,.08);color:#FFB020;font-family:'Saira Condensed';font-weight:800;font-size:12px;cursor:pointer;")}
+            >
+              {p.volumeMuted ? "ON" : "MUTE"}
+            </button>
+          </div>
+        )}
 
         <div style={css("font-size:13px;color:#8A95A6;border-top:1px solid rgba(255,255,255,.06);padding-top:13px;")}>{p.desc}</div>
 
@@ -97,41 +159,6 @@ export function PodManageCard({
               style={css("height:50px;border-radius:11px;border:1px solid rgba(43,166,255,.4);background:rgba(43,166,255,.1);color:#5BC0FF;font-family:'Saira Condensed';font-weight:700;letter-spacing:.07em;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;")}
             >
               <LockOpen w={16} h={16} />UNLOCK
-            </button>
-          </div>
-        )}
-
-        {!p.offline && (
-          <div style={css("display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:7px;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:#101720;")}>
-            <div style={css("grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:1px;")}>
-              <span style={css("font-family:'Saira Condensed';font-weight:800;letter-spacing:.16em;font-size:11px;color:#7A8497;")}>AUDIO</span>
-              <span style={css(`font-family:'Saira Condensed';font-weight:800;letter-spacing:.08em;font-size:12px;color:${p.bridgeReady ? "#5BC0FF" : "#FFB020"};`)}>
-                {audioStatus}
-              </span>
-            </div>
-            <button
-              onClick={() => queueVolume({ level: 20, muted: false }, p.onVolumeQuiet)}
-              style={css("height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#C7D0DC;font-family:'Saira Condensed';font-weight:700;font-size:12px;cursor:pointer;")}
-            >
-              QUIET
-            </button>
-            <button
-              onClick={() => queueVolume({ level: 50, muted: false }, p.onVolumeStandard)}
-              style={css("height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#C7D0DC;font-family:'Saira Condensed';font-weight:700;font-size:12px;cursor:pointer;")}
-            >
-              STD
-            </button>
-            <button
-              onClick={() => queueVolume({ level: 100, muted: false }, p.onVolumeRace)}
-              style={css("height:32px;border-radius:8px;border:1px solid rgba(43,166,255,.32);background:rgba(43,166,255,.09);color:#5BC0FF;font-family:'Saira Condensed';font-weight:800;font-size:12px;cursor:pointer;")}
-            >
-              RACE
-            </button>
-            <button
-              onClick={() => queueVolume({ muted: !p.volumeMuted }, p.onVolumeMute)}
-              style={css("height:32px;border-radius:8px;border:1px solid rgba(255,176,32,.32);background:rgba(255,176,32,.08);color:#FFB020;font-family:'Saira Condensed';font-weight:800;font-size:12px;cursor:pointer;")}
-            >
-              {p.volumeMuted ? "ON" : "MUTE"}
             </button>
           </div>
         )}
