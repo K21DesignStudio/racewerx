@@ -227,25 +227,6 @@ function normalizeVolume(volume: VolumeCommand) {
   return normalized;
 }
 
-function parseVersion(version: string | undefined) {
-  const match = (version || "").match(/^(\d+)\.(\d+)\.(\d+)/);
-  if (!match) return null;
-  return { major: Number(match[1]), minor: Number(match[2]), patch: Number(match[3]) };
-}
-
-function supportsVolume(version: string | undefined) {
-  const parsed = parseVersion(version);
-  if (!parsed) return false;
-  if (parsed.major > 7) return true;
-  if (parsed.major === 7) return parsed.minor >= 1;
-  if (parsed.major === 6) return parsed.minor >= 1;
-  return false;
-}
-
-function podSupportsVolume(pod: RemotePod) {
-  return supportsVolume(pod.agentVersion) || supportsVolume(pod.version);
-}
-
 export function verifyAgentSecret(request: Request) {
   const suppliedSecret = request.headers.get("x-agent-key") || "";
   const allowedSecrets = [process.env.AGENT_SECRET, "pod-agent-secret-001"].filter(Boolean) as string[];
@@ -290,10 +271,6 @@ export async function queuePodVolume(podId: string, volume: VolumeCommand) {
   const normalizedVolume = normalizeVolume(volume);
   const state = await getPortalState();
   const pod = state.pods[podId] || defaultPod(podId);
-
-  if (!pod.lastSeen || !podSupportsVolume(pod)) {
-    throw new Error("Pod needs the volume-capable bridge before Windows audio can be changed.");
-  }
 
   const queue = getCommandQueue(pod);
   const nextCommandId = nextCommandIdFor(pod, queue);

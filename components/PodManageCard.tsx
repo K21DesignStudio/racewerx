@@ -24,6 +24,36 @@ export function PodManageCard({
   p: PodVal;
   showBuild: boolean;
 }) {
+  const [queuedAudioStatus, setQueuedAudioStatus] = React.useState<string | null>(null);
+  const audioStatus = queuedAudioStatus ?? (p.bridgeReady
+    ? p.volumeMuted
+      ? "MUTED"
+      : `${p.volumeLevel}%`
+    : p.pendingCommandLabel !== "None"
+      ? "QUEUED"
+      : "QUEUE");
+
+  const queueVolume = (
+    volume: { level?: number; muted?: boolean },
+    bridgeReadyAction: () => void
+  ) => {
+    if (p.bridgeReady) {
+      bridgeReadyAction();
+      return;
+    }
+
+    setQueuedAudioStatus("QUEUED");
+    fetch(`/api/pods/pod-${p.id}/volume`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      cache: "no-store",
+      body: JSON.stringify(volume),
+    }).catch(() => {
+      setQueuedAudioStatus(null);
+      bridgeReadyAction();
+    });
+  };
+
   return (
     <div style={css("background:#141A24;border:1px solid rgba(255,255,255,.07);border-radius:15px;overflow:hidden;")}>
       <div style={css(`height:4px;background:${p.color};`)} />
@@ -76,33 +106,29 @@ export function PodManageCard({
             <div style={css("grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:1px;")}>
               <span style={css("font-family:'Saira Condensed';font-weight:800;letter-spacing:.16em;font-size:11px;color:#7A8497;")}>AUDIO</span>
               <span style={css(`font-family:'Saira Condensed';font-weight:800;letter-spacing:.08em;font-size:12px;color:${p.bridgeReady ? "#5BC0FF" : "#FFB020"};`)}>
-                {p.bridgeReady ? (p.volumeMuted ? "MUTED" : `${p.volumeLevel}%`) : "UPDATE"}
+                {audioStatus}
               </span>
             </div>
             <button
-              disabled={!p.bridgeReady}
-              onClick={p.onVolumeQuiet}
+              onClick={() => queueVolume({ level: 20, muted: false }, p.onVolumeQuiet)}
               style={css("height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#C7D0DC;font-family:'Saira Condensed';font-weight:700;font-size:12px;cursor:pointer;")}
             >
               QUIET
             </button>
             <button
-              disabled={!p.bridgeReady}
-              onClick={p.onVolumeStandard}
+              onClick={() => queueVolume({ level: 50, muted: false }, p.onVolumeStandard)}
               style={css("height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#C7D0DC;font-family:'Saira Condensed';font-weight:700;font-size:12px;cursor:pointer;")}
             >
               STD
             </button>
             <button
-              disabled={!p.bridgeReady}
-              onClick={p.onVolumeRace}
+              onClick={() => queueVolume({ level: 100, muted: false }, p.onVolumeRace)}
               style={css("height:32px;border-radius:8px;border:1px solid rgba(43,166,255,.32);background:rgba(43,166,255,.09);color:#5BC0FF;font-family:'Saira Condensed';font-weight:800;font-size:12px;cursor:pointer;")}
             >
               RACE
             </button>
             <button
-              disabled={!p.bridgeReady}
-              onClick={p.onVolumeMute}
+              onClick={() => queueVolume({ muted: !p.volumeMuted }, p.onVolumeMute)}
               style={css("height:32px;border-radius:8px;border:1px solid rgba(255,176,32,.32);background:rgba(255,176,32,.08);color:#FFB020;font-family:'Saira Condensed';font-weight:800;font-size:12px;cursor:pointer;")}
             >
               {p.volumeMuted ? "ON" : "MUTE"}
