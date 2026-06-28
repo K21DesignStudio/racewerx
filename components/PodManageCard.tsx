@@ -60,6 +60,12 @@ export function PodManageCard({
     });
   };
 
+  const openVolumeControls = (event?: React.SyntheticEvent) => {
+    event?.preventDefault();
+    event?.stopPropagation();
+    setVolumeOpen(true);
+  };
+
   return (
     <div style={css("background:#141A24;border:1px solid rgba(255,255,255,.07);border-radius:15px;overflow:hidden;")}>
       <div style={css(`height:4px;background:${p.color};`)} />
@@ -83,10 +89,11 @@ export function PodManageCard({
             {!p.offline && (
               <button
                 type="button"
-                onClick={() => setVolumeOpen((open) => !open)}
+                onPointerUp={openVolumeControls}
+                onClick={openVolumeControls}
                 title={`Volume ${audioStatus}`}
                 aria-label={`Volume ${audioStatus}`}
-                style={css(`position:relative;width:54px;height:54px;border-radius:11px;border:1px solid rgba(255,255,255,.1);background:${volumeOpen ? "rgba(91,192,255,.12)" : "rgba(255,255,255,.035)"};color:${queuedAudioStatus ? "#FFB020" : "#C7D0DC"};cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:${volumeOpen ? "0 0 0 1px rgba(91,192,255,.18),0 10px 22px rgba(43,166,255,.14)" : "none"};`)}
+                style={css(`position:relative;width:54px;height:54px;border-radius:11px;border:1px solid rgba(255,255,255,.1);background:${volumeOpen ? "rgba(91,192,255,.12)" : "rgba(255,255,255,.035)"};color:${queuedAudioStatus ? "#FFB020" : "#C7D0DC"};cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:${volumeOpen ? "0 0 0 1px rgba(91,192,255,.18),0 10px 22px rgba(43,166,255,.14)" : "none"};touch-action:manipulation;-webkit-tap-highlight-color:transparent;`)}
               >
                 <Volume w={23} h={23} />
                 {queuedAudioStatus && (
