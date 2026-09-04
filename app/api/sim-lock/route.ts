@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { SIM_MONITOR_POD_IDS } from "@/lib/data";
 
 type SimLockAction =
   | "lock"
@@ -11,6 +12,7 @@ type SimLockAction =
 interface SimLockCommand {
   action?: SimLockAction;
   podId?: number;
+  podIds?: number[];
 }
 
 const DEFAULT_PATHS: Record<SimLockAction, string> = {
@@ -53,6 +55,25 @@ function portalPodId(podId?: number) {
   return typeof podId === "number" ? `pod-${podId}` : undefined;
 }
 
+function isAllAction(action: SimLockAction) {
+  return action === "lock-all" || action === "unlock-all" || action === "standby-all";
+}
+
+function singlePodAction(action: SimLockAction): SimLockAction {
+  if (action === "lock-all") return "lock";
+  if (action === "unlock-all") return "unlock";
+  if (action === "standby-all") return "standby";
+  return action;
+}
+
+function monitoredPodIds(podIds?: number[]) {
+  const allowed = new Set(SIM_MONITOR_POD_IDS);
+  const source = Array.isArray(podIds) && podIds.length ? podIds : SIM_MONITOR_POD_IDS;
+  return source
+    .map((id) => Math.round(id))
+    .filter((id, index, arr) => allowed.has(id) && arr.indexOf(id) === index);
+}
+
 export async function POST(request: Request) {
   let command: SimLockCommand;
 
@@ -84,6 +105,16 @@ export async function POST(request: Request) {
     );
   }
 
+  if (
+    typeof command.podId === "number" &&
+    !SIM_MONITOR_POD_IDS.includes(Math.round(command.podId))
+  ) {
+    return NextResponse.json(
+      { ok: false, error: "Pod " + Math.round(command.podId) + " is not monitored by this dashboard" },
+      { status: 400 }
+    );
+  }
+
   const agentBaseUrl =
     process.env.SIM_LOCK_AGENT_URL ?? "https://sim-lock-portal.vercel.app";
 
@@ -92,9 +123,14 @@ export async function POST(request: Request) {
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
-    const response = await fetch(
-      buildAgentUrl(agentBaseUrl, command.action, command.podId),
-      {
+    const commandTargets = isAllAction(command.action)
+      ? monitoredPodIds(command.podIds)
+      : [Math.round(command.podId as number)];
+    const action = singlePodAction(command.action);
+    const commandResults: unknown[] = [];
+
+    for (const podId of commandTargets) {
+      const response = await fetch(buildAgentUrl(agentBaseUrl, action, podId), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -105,41 +141,45 @@ export async function POST(request: Request) {
             : {}),
         },
         body: JSON.stringify({
-          ...command,
-          podId: portalPodId(command.podId),
+          action,
+          podId: portalPodId(podId),
         }),
         signal: controller.signal,
+      });
+
+      const text = await response.text();
+      let agentPayload: unknown = null;
+
+      if (text) {
+        try {
+          agentPayload = JSON.parse(text);
+        } catch {
+          agentPayload = { message: text };
+        }
       }
-    );
 
-    const text = await response.text();
-    let agentPayload: unknown = null;
-
-    if (text) {
-      try {
-        agentPayload = JSON.parse(text);
-      } catch {
-        agentPayload = { message: text };
+      if (!response.ok) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "Sim Lock agent rejected the command",
+            status: response.status,
+            podId,
+            agent: agentPayload,
+          },
+          { status: 502 }
+        );
       }
-    }
 
-    if (!response.ok) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error: "Sim Lock agent rejected the command",
-          status: response.status,
-          agent: agentPayload,
-        },
-        { status: 502 }
-      );
+      commandResults.push({ podId, agent: agentPayload });
     }
 
     return NextResponse.json({
       ok: true,
       action: command.action,
       podId: command.podId,
-      agent: agentPayload,
+      podIds: commandTargets,
+      agent: commandResults,
     });
   } catch (error) {
     const message =

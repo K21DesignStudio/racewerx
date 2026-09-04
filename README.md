@@ -82,9 +82,14 @@ so the visuals match pixel-for-pixel.
 ### Configuration
 
 Editable knobs from the prototype live in `lib/data.ts` → `CONFIG`:
-`centreName`, `podCount` (2–16), `tillRequired` (default `false` — Unlock All
-skips the till step; set `true` to require a till transaction), and
-`unlockPrice`.
+`centreName`, `podCount` (legacy count), `simMonitorPodIds`,
+`tillRequired` (default `false` — Unlock All skips the till step; set `true`
+to require a till transaction), and `unlockPrice`.
+
+`simMonitorPodIds` is the monitored pod allow-list. Pod 3 is currently removed
+because the original Pod 3 PC has been replaced and should not receive SIM
+monitor commands. The home SIM monitor also includes an `AUTO / 3 ROW / MAP`
+view switch; `3 ROW` keeps three pod cards per row on desktop.
 
 ### Sim Lock bridge
 

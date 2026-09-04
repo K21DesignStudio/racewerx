@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
+import { SIM_MONITOR_POD_IDS } from "./data";
 
 const STORAGE_KEY = "racewerx:pod-control:v1";
 const LOCAL_STATE_FILE = path.join(process.cwd(), ".data", "racewerx-pods.json");
@@ -109,6 +110,12 @@ function normalizePodId(id: string) {
   }
 
   return value || "pod-unknown";
+}
+
+export function isMonitoredPodId(id: string) {
+  const normalized = normalizePodId(id);
+  const match = normalized.match(/^pod-(\d+)$/i);
+  return Boolean(match && SIM_MONITOR_POD_IDS.includes(Number(match[1])));
 }
 
 function defaultState(): PortalState {
@@ -331,6 +338,7 @@ export async function listPods() {
 
   return Object.values(state.pods)
     .filter((pod) => pod.lastSeen)
+    .filter((pod) => isMonitoredPodId(pod.id))
     .map((pod) => {
       const lastSeenAt = new Date(pod.lastSeen as string).getTime();
       if (lastSeenAt < cutoff) {
@@ -344,6 +352,9 @@ export async function listPods() {
 export async function queuePodCommand(podId: string, command: Exclude<RemoteCommand, "none" | "volume">) {
   const state = await getPortalState();
   const id = normalizePodId(podId);
+  if (!isMonitoredPodId(id)) {
+    throw new Error(`${id} is not monitored by this dashboard`);
+  }
   const pod = state.pods[id] || defaultPod(id);
   const queue = getCommandQueue(pod);
   const nextCommandId = nextCommandIdFor(pod, queue);
@@ -363,6 +374,9 @@ export async function queuePodVolume(podId: string, volume: VolumeCommand) {
   const normalizedVolume = normalizeVolume(volume);
   const state = await getPortalState();
   const id = normalizePodId(podId);
+  if (!isMonitoredPodId(id)) {
+    throw new Error(`${id} is not monitored by this dashboard`);
+  }
   const pod = state.pods[id] || defaultPod(id);
 
   const queue = getCommandQueue(pod);
@@ -393,6 +407,15 @@ export async function queuePodVolume(podId: string, volume: VolumeCommand) {
 export async function handleAgentPoll(body: AgentPollBody) {
   const state = await getPortalState();
   const podId = normalizePodId(body.podId || "pod-unknown");
+  if (!isMonitoredPodId(podId)) {
+    return {
+      ok: true,
+      serverTime: nowIso(),
+      commandId: 0,
+      command: "none",
+      update: state.update,
+    };
+  }
   const existing = state.pods[podId] || defaultPod(podId);
   const suppliedLog = Array.isArray(body.log) ? body.log.slice(-80) : existing.log;
 

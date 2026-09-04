@@ -165,6 +165,22 @@ export const ListLines = (p: IcoProps) => (
   </Base>
 );
 
+export const ThreeColumns = (p: IcoProps) => (
+  <Base sw={2} {...p}>
+    <rect x="3" y="5" width="4.8" height="14" rx="1.2" />
+    <rect x="9.6" y="5" width="4.8" height="14" rx="1.2" />
+    <rect x="16.2" y="5" width="4.8" height="14" rx="1.2" />
+  </Base>
+);
+
+export const FloorMap = (p: IcoProps) => (
+  <Base sw={2} {...p}>
+    <path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2V6Z" />
+    <path d="M9 4v14" />
+    <path d="M15 6v14" />
+  </Base>
+);
+
 export const EyeOff = (p: IcoProps) => (
   <Base sw={2} {...p}>
     <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />

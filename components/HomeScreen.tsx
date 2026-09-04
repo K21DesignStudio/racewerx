@@ -3,7 +3,7 @@
 import React from "react";
 import { css } from "./css";
 import { Hover } from "./Hover";
-import { ArrowRight, Flag } from "./Icons";
+import { ArrowRight, Flag, FloorMap, ListLines, ThreeColumns } from "./Icons";
 import { PodManageCard } from "./PodManageCard";
 import { PodMapTile } from "./PodMapTile";
 import { PackageGrid } from "./PackageGrid";
@@ -12,9 +12,40 @@ import type { Vals } from "@/state/useVals";
 export function HomeScreen({ v }: { v: Vals }) {
   return (
     <div style={css("animation:popIn .4s ease both;")}>
+      <div style={css("display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px;flex-wrap:wrap;")}>
+        <div style={css("display:flex;align-items:center;gap:10px;min-width:0;")}>
+          <span style={css("width:8px;height:8px;border-radius:50%;background:#2FD27A;animation:livePulse 1.6s infinite;flex:none;")} />
+          <span style={css("font-family:'Saira Condensed';font-weight:800;letter-spacing:.16em;font-size:13px;color:#C7D0DC;white-space:nowrap;")}>SIM MONITOR</span>
+        </div>
+        <div style={css("display:flex;align-items:center;gap:6px;padding:5px;background:#0E1219;border:1px solid rgba(255,255,255,.08);border-radius:12px;")}>
+          {v.viewPills.map((mode) => (
+            <button
+              key={mode.key}
+              onClick={mode.onPick}
+              title={mode.title}
+              style={css(`height:38px;padding:0 11px;border-radius:8px;border:1px solid ${mode.active ? "rgba(43,166,255,.5)" : "rgba(255,255,255,0)"};background:${mode.active ? "rgba(43,166,255,.14)" : "transparent"};color:${mode.active ? "#5BC0FF" : "#8A95A6"};font-family:'Saira Condensed';font-weight:800;letter-spacing:.08em;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;`)}
+            >
+              {mode.key === "list" && <ListLines w={15} h={15} sw={2.2} />}
+              {mode.key === "three" && <ThreeColumns w={15} h={15} sw={2.2} />}
+              {mode.key === "map" && <FloorMap w={15} h={15} sw={2.2} />}
+              {mode.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* ===== Pods — list view ===== */}
       {v.isListView && (
         <div data-pod-section="" style={css("display:grid;grid-template-columns:repeat(auto-fit,minmax(262px,1fr));gap:16px;")}>
+          {v.pods.map((p) => (
+            <PodManageCard key={p.id} p={p} showBuild />
+          ))}
+        </div>
+      )}
+
+      {/* ===== Pods — 3 per row view ===== */}
+      {v.isThreeView && (
+        <div data-pod-section="" className="rw-pod-grid-three" style={css("display:grid;gap:16px;")}>
           {v.pods.map((p) => (
             <PodManageCard key={p.id} p={p} showBuild />
           ))}

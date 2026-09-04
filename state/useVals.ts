@@ -103,6 +103,8 @@ export function useVals() {
       })
     );
 
+    const isList = S.view === "list";
+    const isThree = S.view === "three";
     const isMap = S.view === "map";
     const leftCount = Math.round((dec.length * 3) / 5);
     const leftPods = dec.slice(0, leftCount);
@@ -544,7 +546,34 @@ export function useVals() {
           onPick: () => A_.comboSelect(2),
         },
       ],
-      isListView: !isMap,
+      viewPills: [
+        {
+          key: "list",
+          label: "AUTO",
+          title: "Automatic card layout",
+          active: isList,
+          inactive: !isList,
+          onPick: () => A_.setView("list"),
+        },
+        {
+          key: "three",
+          label: "3 ROW",
+          title: "Three pods per row",
+          active: isThree,
+          inactive: !isThree,
+          onPick: () => A_.setView("three"),
+        },
+        {
+          key: "map",
+          label: "MAP",
+          title: "Floor map layout",
+          active: isMap,
+          inactive: !isMap,
+          onPick: () => A_.setView("map"),
+        },
+      ],
+      isListView: isList,
+      isThreeView: isThree,
       isMapView: isMap,
       leftPods,
       rightPods,

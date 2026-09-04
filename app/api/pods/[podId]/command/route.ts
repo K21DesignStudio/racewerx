@@ -1,4 +1,4 @@
-import { queuePodCommand, type RemoteCommand } from "@/lib/podControl";
+import { isMonitoredPodId, queuePodCommand, type RemoteCommand } from "@/lib/podControl";
 
 const allowed = new Set<RemoteCommand>(["lock", "unlock", "unblocked", "timed"]);
 
@@ -10,6 +10,10 @@ export async function POST(
 ) {
   const { podId } = await context.params;
   const body = (await request.json().catch(() => null)) as { command?: RemoteCommand } | null;
+
+  if (!isMonitoredPodId(podId)) {
+    return Response.json({ error: `${podId} is not monitored by this dashboard` }, { status: 400 });
+  }
 
   if (!body?.command || !allowed.has(body.command)) {
     return Response.json({ error: "Invalid command" }, { status: 400 });

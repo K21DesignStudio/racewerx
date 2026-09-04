@@ -1,4 +1,4 @@
-import { queuePodVolume, type VolumeCommand } from "@/lib/podControl";
+import { isMonitoredPodId, queuePodVolume, type VolumeCommand } from "@/lib/podControl";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +23,10 @@ export async function POST(
   const { podId } = await context.params;
   const body = (await request.json().catch(() => null)) as VolumeCommand | null;
   const volume = parseVolume(body);
+
+  if (!isMonitoredPodId(podId)) {
+    return Response.json({ error: `${podId} is not monitored by this dashboard` }, { status: 400 });
+  }
 
   if (volume.level === undefined && volume.muted === undefined) {
     return Response.json({ error: "Volume command requires level or muted" }, { status: 400 });

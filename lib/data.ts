@@ -70,7 +70,7 @@ export type ScreenName =
 
 export type ModalName = "unlockConfirm" | "till" | "unlockSuccess" | null;
 
-export type ViewMode = "list" | "map";
+export type ViewMode = "list" | "three" | "map";
 
 export type PackageKey =
   | "x3"
@@ -116,9 +116,12 @@ export interface StatusMeta {
 export const CONFIG = {
   centreName: "RACEWERX",
   podCount: 8,
+  simMonitorPodIds: [1, 2, 4, 5, 6, 7, 8],
   tillRequired: false,
   unlockPrice: 15,
 };
+
+export const SIM_MONITOR_POD_IDS = CONFIG.simMonitorPodIds;
 
 // Seed used to lay out the initial pod grid (cycled across podCount).
 export const POD_SEED: PodStatus[] = [
@@ -279,7 +282,7 @@ export const COMBO_AIDS: Aids[] = [
 export const FNICON: Record<string, string> = {
   play: "M8 5v14l11-7z",
   screen: "M3 4h18v12H3zM8 20h8M12 16v4",
-  msg: "M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5z",
+  msg: "M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5z",
   power: "M12 2v10M18.4 6.6a9 9 0 1 1-12.8 0",
   lock: "M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4",
   off: "M12 2v10M18.4 6.6a9 9 0 1 1-12.8 0",

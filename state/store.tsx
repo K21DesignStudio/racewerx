@@ -23,6 +23,7 @@ import {
   Pod,
   PodStatus,
   POD_SEED,
+  SIM_MONITOR_POD_IDS,
   PackageKey,
   PrintOpts,
   PrintOptKey,
@@ -79,10 +80,9 @@ export interface DashboardState {
   pods: Pod[];
 }
 
-function makePods(n: number): Pod[] {
-  const count = Math.max(2, Math.min(16, n || 8));
-  return Array.from({ length: count }, (_, i) => ({
-    id: i + 1,
+function makePods(): Pod[] {
+  return SIM_MONITOR_POD_IDS.map((id, i) => ({
+    id,
     status: POD_SEED[i % POD_SEED.length],
     volumeLevel: 50,
     volumeMuted: false,
@@ -157,7 +157,7 @@ function initialState(): DashboardState {
       podStatus: false,
       takings: false,
     },
-    pods: makePods(CONFIG.podCount),
+    pods: makePods(),
   };
 }
 

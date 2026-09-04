@@ -37,3 +37,11 @@ button{font-family:inherit}
   .rw-actionbar .rw-lockgroup button{padding:0 9px !important;}
   .rw-actionbar .rw-clock{display:none !important;}
 }
+
+.rw-pod-grid-three{grid-template-columns:repeat(3,minmax(0,1fr));}
+@media (max-width:1080px){
+  .rw-pod-grid-three{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media (max-width:720px){
+  .rw-pod-grid-three{grid-template-columns:1fr;}
+}

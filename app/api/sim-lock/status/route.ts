@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { SIM_MONITOR_POD_IDS } from "@/lib/data";
 
 type PortalPodState = "STANDBY" | "UNLOCKED" | "LOCKED" | "OFFLINE";
 
@@ -60,13 +61,15 @@ export async function GET() {
       );
     }
 
+    const monitoredPodIds = new Set(SIM_MONITOR_POD_IDS);
+
     return NextResponse.json(
       {
         ok: true,
         pods: payload.pods
           .map((pod: PortalPod) => {
             const id = numberFromPortalId(pod.id);
-            return id == null
+            return id == null || !monitoredPodIds.has(id)
               ? null
               : {
                   id,
