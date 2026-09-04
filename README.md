@@ -89,7 +89,8 @@ to require a till transaction), and `unlockPrice`.
 `simMonitorPodIds` is the monitored pod allow-list. Pod 3 is currently removed
 because the original Pod 3 PC has been replaced and should not receive SIM
 monitor commands. The home SIM monitor also includes an `AUTO / 3 ROW / MAP`
-view switch; `3 ROW` keeps three pod cards per row on desktop.
+view switch; `3 ROW` keeps three pod cards per row on desktop, then falls back
+to two and one columns on narrower screens.
 
 ### Sim Lock bridge
 
