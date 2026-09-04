@@ -282,7 +282,7 @@ export const COMBO_AIDS: Aids[] = [
 export const FNICON: Record<string, string> = {
   play: "M8 5v14l11-7z",
   screen: "M3 4h18v12H3zM8 20h8M12 16v4",
-  msg: "M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5z",
+  msg: "M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5z",
   power: "M12 2v10M18.4 6.6a9 9 0 1 1-12.8 0",
   lock: "M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4",
   off: "M12 2v10M18.4 6.6a9 9 0 1 1-12.8 0",
